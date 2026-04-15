@@ -10,19 +10,25 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
   background: #1a1a2e;
   color: #eee;
-  min-height: 100vh;
+  height: 100vh;
+  padding: 8px;
+  overflow: hidden;
+}
+.main-layout {
+  display: flex;
+  gap: 12px;
+  height: 100%;
+}
+/* 左侧播放器 */
+.player-panel {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 4px;
-}
-.container {
-  width: 100%;
-  max-width: 960px;
   background: #16213e;
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  overflow: hidden;
 }
 .drop-zone {
   border: 2px dashed #e94560;
@@ -31,7 +37,11 @@ body {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  margin-bottom: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .drop-zone:hover, .drop-zone.dragover {
   background: rgba(233,69,96,0.1);
@@ -39,8 +49,18 @@ body {
 }
 .drop-zone p { font-size: 1.1em; color: #aaa; }
 .drop-zone .icon { font-size: 3em; margin-bottom: 10px; }
-#mediaWrapper { display: none; }
-#mediaContainer { position: relative; }
+#mediaWrapper { display: none; flex: 1; flex-direction: column; min-height: 0; }
+#mediaContainer {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
 #playOverlay {
   position: absolute;
   top: 50%; left: 50%;
@@ -59,205 +79,217 @@ body {
 }
 #playOverlay svg { width: 36px; height: 36px; fill: white; margin-left: 4px; }
 video, audio {
-  width: 100%;
-  border-radius: 8px;
+  max-width: 100%;
+  max-height: 100%;
   outline: none;
-  background: #000;
 }
 .controls {
-  display: flex; align-items: center; gap: 8px;
-  margin-top: 12px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px; flex-wrap: wrap;
 }
 .btn {
   background: #0f3460; border: none; color: #eee;
-  padding: 8px 14px; border-radius: 8px;
-  cursor: pointer; font-size: 0.95em;
+  padding: 7px 12px; border-radius: 8px;
+  cursor: pointer; font-size: 0.9em;
   transition: background 0.2s;
   display: flex; align-items: center; gap: 4px;
 }
 .btn:hover { background: #e94560; }
-.btn.active { background: #e94560; }
-.btn-sm { padding: 5px 10px; font-size: 0.85em; }
-.speed-group { display: flex; gap: 4px; margin-left: auto; }
+.btn-sm { padding: 5px 10px; font-size: 0.8em; }
+.speed-group { display: flex; gap: 3px; margin-left: auto; }
 .speed-btn {
   background: #0f3460; border: none; color: #aaa;
-  padding: 6px 10px; border-radius: 6px;
-  cursor: pointer; font-size: 0.85em;
+  padding: 5px 8px; border-radius: 5px;
+  cursor: pointer; font-size: 0.8em;
   transition: all 0.2s;
 }
 .speed-btn:hover, .speed-btn.active { background: #e94560; color: #fff; }
 .skip-btn {
   background: #533483; border: none; color: #eee;
-  padding: 8px 12px; border-radius: 8px;
-  cursor: pointer; font-size: 1em;
+  padding: 7px 10px; border-radius: 8px;
+  cursor: pointer; font-size: 0.9em;
   transition: background 0.2s;
 }
 .skip-btn:hover { background: #7b2cbf; }
 .time-display {
-  color: #888; font-size: 0.9em;
+  color: #888; font-size: 0.85em;
   font-variant-numeric: tabular-nums;
-  min-width: 120px; text-align: center;
+  min-width: 100px; text-align: center;
 }
+.volume-control { display: flex; align-items: center; gap: 4px; }
+.volume-control input[type="range"] { width: 60px; accent-color: #e94560; }
 .shortcuts-bar {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  align-items: center; font-size: 0.85em; color: #888;
-  margin-top: 10px; margin-bottom: 8px;
-  padding: 8px 12px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  align-items: center; font-size: 0.78em; color: #888;
+  margin-top: 6px; padding: 6px 10px;
   background: rgba(255,255,255,0.03);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 .kbd {
-  background: #0f3460; padding: 2px 8px;
-  border-radius: 4px; font-family: monospace;
+  background: #0f3460; padding: 2px 6px;
+  border-radius: 3px; font-family: monospace;
   font-size: 0.95em; color: #e94560;
   border: 1px solid #533483;
 }
-.volume-control { display: flex; align-items: center; gap: 6px; }
-.volume-control input[type="range"] { width: 80px; accent-color: #e94560; }
+.top-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+}
+.top-bar .fileName {
+  flex: 1; color: #e94560; font-size: 0.85em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
-/* 播放列表 */
-.playlist-section {
-  margin-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  padding-top: 10px;
+/* 右侧播放列表 */
+.playlist-panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: #16213e;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
 }
 .playlist-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 8px;
 }
 .playlist-header h3 {
-  font-size: 0.95em; color: #888; font-weight: normal;
+  font-size: 0.9em; color: #888; font-weight: normal;
 }
 .playlist-header h3 span { color: #e94560; margin-left: 4px; }
 .playlist-actions { display: flex; gap: 6px; }
 .playlist {
-  max-height: 240px;
+  flex: 1;
   overflow-y: auto;
   border-radius: 8px;
   background: rgba(0,0,0,0.2);
 }
-.playlist::-webkit-scrollbar { width: 6px; }
+.playlist::-webkit-scrollbar { width: 5px; }
 .playlist::-webkit-scrollbar-thumb { background: #533483; border-radius: 3px; }
 .playlist-item {
   display: flex; align-items: center;
-  padding: 8px 12px;
+  padding: 8px 10px;
   cursor: pointer;
   transition: background 0.15s;
-  gap: 10px;
+  gap: 8px;
   border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 .playlist-item:last-child { border-bottom: none; }
 .playlist-item:hover { background: rgba(255,255,255,0.05); }
-.playlist-item.active {
-  background: rgba(233,69,96,0.15);
-}
+.playlist-item.active { background: rgba(233,69,96,0.15); }
 .playlist-item .index {
-  color: #555; font-size: 0.8em;
-  min-width: 20px; text-align: center;
+  color: #555; font-size: 0.75em;
+  min-width: 16px; text-align: center;
 }
 .playlist-item.active .index { color: #e94560; }
 .playlist-item .name {
-  flex: 1;
-  font-size: 0.9em;
-  color: #aaa;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1; font-size: 0.82em; color: #aaa;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .playlist-item.active .name { color: #e94560; font-weight: 500; }
-.playlist-item .type-icon {
-  font-size: 0.85em;
-  opacity: 0.6;
+.playlist-item .type-icon { font-size: 0.8em; opacity: 0.6; }
+.playlist-item .progress-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #533483;
+  flex-shrink: 0;
 }
+.playlist-item.has-progress .progress-dot { background: #e94560; }
 .playlist-item .remove-btn {
-  opacity: 0;
-  background: none; border: none;
+  opacity: 0; background: none; border: none;
   color: #666; cursor: pointer;
-  font-size: 1.1em; padding: 0 4px;
+  font-size: 1em; padding: 0 2px;
   transition: all 0.15s;
 }
 .playlist-item:hover .remove-btn { opacity: 1; }
 .playlist-item .remove-btn:hover { color: #e94560; }
 .playlist-empty {
   text-align: center; padding: 24px;
-  color: #555; font-size: 0.9em;
+  color: #555; font-size: 0.85em;
 }
-.top-bar {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 8px;
-}
-.top-bar .fileName {
-  flex: 1; color: #e94560; font-size: 0.9em;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.playlist-stats {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.75em; color: #666;
+  display: flex; justify-content: space-between;
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="drop-zone" id="dropZone">
-    <div class="icon">📂</div>
-    <p>拖拽视频或音频文件到这里</p>
-    <p style="margin-top:8px; font-size:0.85em; color:#666">或点击选择文件（支持多选）</p>
-  </div>
-  <input type="file" id="fileInput" accept="video/*,audio/*" multiple style="display:none">
-
-  <div id="mediaWrapper">
-    <div class="top-bar">
-      <span class="fileName" id="fileName"></span>
-      <button class="btn btn-sm" onclick="fileInput.click()">＋ 添加</button>
+<div class="main-layout">
+  <!-- 左侧播放器 -->
+  <div class="player-panel">
+    <div class="drop-zone" id="dropZone">
+      <div class="icon">📂</div>
+      <p>拖拽视频或音频文件到这里</p>
+      <p style="margin-top:8px; font-size:0.85em; color:#666">或点击选择文件（支持多选）</p>
     </div>
-    <div id="mediaContainer"></div>
+    <input type="file" id="fileInput" accept="video/*,audio/*" multiple style="display:none">
 
-    <div class="shortcuts-bar">
-      <span class="kbd">Space</span> 播放/暂停
-      <span class="kbd">←→</span> 快进退
-      <span class="kbd">N</span> 下一个 <span class="kbd">P</span> 上一个
-      <span class="kbd">[ ]</span> 倍速
-      <span class="kbd">↑↓</span> 音量 <span class="kbd">M</span> 静音
-      <span style="margin-left:auto; color:#e94560; font-size:1.4em; font-weight:bold;" id="currentSpeed">1x</span>
-    </div>
-
-    <div class="controls">
-      <button class="skip-btn" onclick="playPrev()">⏮ 上一个</button>
-      <button class="skip-btn" onclick="skip(-10)">⏪ -10s</button>
-      <button class="skip-btn" onclick="skip(-5)">⏪ -5s</button>
-      <button class="btn" id="playBtn" onclick="togglePlay()">▶ 播放</button>
-      <button class="skip-btn" onclick="skip(5)">+5s ⏩</button>
-      <button class="skip-btn" onclick="skip(10)">+10s ⏩</button>
-      <button class="skip-btn" onclick="playNext()">下一个 ⏭</button>
-
-      <div class="volume-control">
-        <span>🔊</span>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+    <div id="mediaWrapper">
+      <div class="top-bar">
+        <span class="fileName" id="fileName"></span>
+        <button class="btn btn-sm" onclick="fileInput.click()">＋ 添加</button>
       </div>
-      <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-    </div>
+      <div id="mediaContainer"></div>
 
-    <div class="controls">
-      <span style="color:#888; font-size:0.9em;">倍速：</span>
-      <div class="speed-group" id="speedGroup">
-        <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
-        <button class="speed-btn" onclick="setSpeed(0.75)">0.75x</button>
-        <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
-        <button class="speed-btn" onclick="setSpeed(1.25)">1.25x</button>
-        <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
-        <button class="speed-btn" onclick="setSpeed(2)">2x</button>
-        <button class="speed-btn" onclick="setSpeed(3)">3x</button>
+      <div class="shortcuts-bar">
+        <span class="kbd">Space</span> 播放/暂停
+        <span class="kbd">←→</span> 快进退
+        <span class="kbd">N</span> 下一个 <span class="kbd">P</span> 上一个
+        <span class="kbd">[ ]</span> 倍速
+        <span class="kbd">↑↓</span> 音量 <span class="kbd">M</span> 静音
+        <span style="margin-left:auto; color:#e94560; font-size:1.3em; font-weight:bold;" id="currentSpeed">1x</span>
       </div>
-    </div>
 
-    <div class="playlist-section">
-      <div class="playlist-header">
-        <h3>播放列表 <span id="playlistCount">0</span></h3>
-        <div class="playlist-actions">
-          <button class="btn btn-sm" onclick="fileInput.click()">＋ 添加文件</button>
-          <button class="btn btn-sm" onclick="clearPlaylist()" style="color:#888;">清空</button>
+      <div class="controls">
+        <button class="skip-btn" onclick="playPrev()">⏮</button>
+        <button class="skip-btn" onclick="skip(-10)">⏪10</button>
+        <button class="skip-btn" onclick="skip(-5)">⏪5</button>
+        <button class="btn" id="playBtn" onclick="togglePlay()">▶</button>
+        <button class="skip-btn" onclick="skip(5)">5⏩</button>
+        <button class="skip-btn" onclick="skip(10)">10⏩</button>
+        <button class="skip-btn" onclick="playNext()">⏭</button>
+
+        <div class="volume-control">
+          <span>🔊</span>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+        </div>
+        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+      </div>
+
+      <div class="controls">
+        <span style="color:#888; font-size:0.85em;">倍速：</span>
+        <div class="speed-group" id="speedGroup">
+          <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+          <button class="speed-btn" onclick="setSpeed(0.75)">0.75x</button>
+          <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+          <button class="speed-btn" onclick="setSpeed(1.25)">1.25x</button>
+          <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+          <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+          <button class="speed-btn" onclick="setSpeed(3)">3x</button>
         </div>
       </div>
-      <div class="playlist" id="playlist">
-        <div class="playlist-empty">播放列表为空</div>
+    </div>
+  </div>
+
+  <!-- 右侧播放列表 -->
+  <div class="playlist-panel">
+    <div class="playlist-header">
+      <h3>播放列表 <span id="playlistCount">0</span></h3>
+      <div class="playlist-actions">
+        <button class="btn btn-sm" onclick="fileInput.click()">＋</button>
+        <button class="btn btn-sm" onclick="clearPlaylist()" style="color:#888;">清空</button>
       </div>
+    </div>
+    <div class="playlist" id="playlist">
+      <div class="playlist-empty">播放列表为空</div>
+    </div>
+    <div class="playlist-stats">
+      <span id="statsLeft">-</span>
+      <span id="statsTotal"></span>
     </div>
   </div>
 </div>
@@ -267,6 +299,9 @@ video, audio {
 let playlist = [];
 let currentIndex = -1;
 let media = null;
+
+// localStorage key
+const STORAGE_KEY = 'local-player-progress';
 
 // DOM
 const dropZone = document.getElementById('dropZone');
@@ -280,15 +315,49 @@ const speedGroup = document.getElementById('speedGroup');
 const volumeSlider = document.getElementById('volumeSlider');
 const playlistEl = document.getElementById('playlist');
 const playlistCount = document.getElementById('playlistCount');
+const statsLeft = document.getElementById('statsLeft');
+const statsTotal = document.getElementById('statsTotal');
+
+// 读取保存的进度
+function getSavedProgress(name) {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return data[name] || 0;
+  } catch { return 0; }
+}
+
+// 保存进度
+function saveProgress(name, time) {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (time > 1) { // 超过1秒才保存
+      data[name] = time;
+    } else {
+      delete data[name];
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+// 清除进度
+function clearProgress(name) {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    delete data[name];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {}
+}
 
 // 添加文件到播放列表
 function addFiles(files) {
   for (const file of files) {
+    const name = file.name;
     playlist.push({
       file: file,
-      name: file.name,
+      name: name,
       url: URL.createObjectURL(file),
-      isVideo: file.type.startsWith('video')
+      isVideo: file.type.startsWith('video'),
+      savedTime: getSavedProgress(name)
     });
   }
   renderPlaylist();
@@ -300,35 +369,47 @@ function addFiles(files) {
 // 渲染播放列表
 function renderPlaylist() {
   playlistCount.textContent = playlist.length;
+  statsLeft.textContent = `剩余 ${playlist.length - currentIndex - 1} 个`;
+
   if (playlist.length === 0) {
     playlistEl.innerHTML = '<div class="playlist-empty">播放列表为空</div>';
     mediaWrapper.style.display = 'none';
-    dropZone.style.display = 'block';
+    dropZone.style.display = 'flex';
     return;
   }
-  playlistEl.innerHTML = playlist.map((item, i) => `
-    <div class="playlist-item ${i === currentIndex ? 'active' : ''}" onclick="playAtIndex(${i})">
+  mediaWrapper.style.display = 'flex';
+  dropZone.style.display = 'none';
+
+  playlistEl.innerHTML = playlist.map((item, i) => {
+    const hasProgress = item.savedTime > 0;
+    return `
+    <div class="playlist-item ${i === currentIndex ? 'active' : ''} ${hasProgress ? 'has-progress' : ''}" onclick="playAtIndex(${i})">
       <span class="index">${i + 1}</span>
       <span class="type-icon">${item.isVideo ? '🎬' : '🎵'}</span>
-      <span class="name" title="${item.name}">${item.name}</span>
+      <span class="name" title="${item.name}${hasProgress ? ' (有上次进度)' : ''}">${item.name}</span>
+      <span class="progress-dot" title="${hasProgress ? '有上次进度' : ''}"></span>
       <button class="remove-btn" onclick="event.stopPropagation(); removeFromPlaylist(${i})">✕</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // 播放指定索引
 function playAtIndex(index) {
   if (index < 0 || index >= playlist.length) return;
+  // 保存当前播放的进度
+  if (currentIndex >= 0 && media) {
+    saveProgress(playlist[currentIndex].name, media.currentTime);
+  }
+
   currentIndex = index;
   const item = playlist[index];
-
   fileNameEl.textContent = item.name;
   mediaContainer.innerHTML = '';
 
   media = document.createElement(item.isVideo ? 'video' : 'audio');
   media.controls = false;
-  media.style.width = '100%';
-  if (item.isVideo) media.style.maxHeight = '540px';
+  media.style.maxWidth = '100%';
+  media.style.maxHeight = '100%';
   media.src = item.url;
   mediaContainer.appendChild(media);
 
@@ -339,38 +420,66 @@ function playAtIndex(index) {
   overlay.onclick = () => media.play();
   mediaContainer.appendChild(overlay);
 
-  media.addEventListener('timeupdate', updateTime);
-  media.addEventListener('loadedmetadata', updateTime);
+  media.addEventListener('timeupdate', () => {
+    updateTime();
+    // 每10秒自动保存进度
+    if (media && Math.floor(media.currentTime) % 10 === 0) {
+      saveProgress(item.name, media.currentTime);
+    }
+  });
+  media.addEventListener('loadedmetadata', () => {
+    updateTime();
+    // 恢复上次播放位置
+    if (item.savedTime > 0 && item.savedTime < media.duration - 2) {
+      media.currentTime = item.savedTime;
+      item.savedTime = 0; // 只恢复一次
+    }
+  });
   media.addEventListener('play', () => {
-    playBtn.textContent = '⏸ 暂停';
+    playBtn.textContent = '⏸';
     overlay.style.display = 'none';
   });
   media.addEventListener('pause', () => {
-    playBtn.textContent = '▶ 播放';
+    playBtn.textContent = '▶';
     overlay.style.display = 'flex';
+    // 暂停时保存进度
+    saveProgress(item.name, media.currentTime);
   });
-  media.addEventListener('ended', () => playNext());
+  media.addEventListener('ended', () => {
+    clearProgress(item.name); // 播完清除进度
+    // 从列表中移除
+    playlist.splice(currentIndex, 1);
+    if (playlist.length === 0) {
+      currentIndex = -1;
+      media = null;
+      mediaContainer.innerHTML = '';
+      renderPlaylist();
+    } else {
+      if (currentIndex >= playlist.length) currentIndex = 0;
+      renderPlaylist();
+      playAtIndex(currentIndex);
+    }
+  });
 
-  mediaWrapper.style.display = 'block';
-  dropZone.style.display = 'none';
   renderPlaylist();
   media.play();
 }
 
 // 从播放列表移除
 function removeFromPlaylist(index) {
+  const item = playlist[index];
+  clearProgress(item.name);
+
   if (index === currentIndex) {
-    if (playlist.length > 1) {
-      const nextIndex = index < playlist.length - 1 ? index : index - 1;
-      playlist.splice(index, 1);
-      currentIndex = nextIndex >= playlist.length ? playlist.length - 1 : nextIndex;
-      if (playlist.length > 0) playAtIndex(currentIndex);
-    } else {
-      playlist = [];
+    playlist.splice(index, 1);
+    if (playlist.length === 0) {
       currentIndex = -1;
       media = null;
       mediaContainer.innerHTML = '';
       renderPlaylist();
+    } else {
+      if (currentIndex >= playlist.length) currentIndex = 0;
+      playAtIndex(currentIndex);
     }
   } else {
     playlist.splice(index, 1);
@@ -381,6 +490,8 @@ function removeFromPlaylist(index) {
 
 // 清空播放列表
 function clearPlaylist() {
+  // 清除所有进度
+  playlist.forEach(item => clearProgress(item.name));
   playlist = [];
   currentIndex = -1;
   media = null;
@@ -460,6 +571,13 @@ document.addEventListener('keydown', e => {
     case ']': if(media) setSpeed(Math.min(4, media.playbackRate + 0.25)); break;
     case 'n': case 'N': playNext(); break;
     case 'p': case 'P': playPrev(); break;
+  }
+});
+
+// 页面关闭前保存进度
+window.addEventListener('beforeunload', () => {
+  if (currentIndex >= 0 && media) {
+    saveProgress(playlist[currentIndex].name, media.currentTime);
   }
 });
 </script>
