@@ -476,7 +476,9 @@ function playAtIndex(index) {
   media.controls = false;
   media.style.maxWidth = '100%';
   media.style.maxHeight = '100%';
+  media.style.cursor = 'pointer';
   media.src = item.url;
+  media.addEventListener('click', () => togglePlay());
   mediaContainer.appendChild(media);
 
   // YouTube 风格进度条
