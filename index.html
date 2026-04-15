@@ -78,6 +78,72 @@ body {
   transform: translate(-50%, -50%) scale(1.1);
 }
 #playOverlay svg { width: 36px; height: 36px; fill: white; margin-left: 4px; }
+
+/* YouTube 风格进度条 */
+.progress-container {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 28px;
+  z-index: 20;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+}
+.progress-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  transition: height 0.1s;
+  position: relative;
+}
+.progress-container:hover .progress-bar-bg {
+  height: 6px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: #e94560;
+  position: relative;
+  transition: none;
+}
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 12px;
+  height: 12px;
+  background: #e94560;
+  border-radius: 50%;
+  transition: transform 0.1s;
+}
+.progress-container:hover .progress-bar-fill::after {
+  transform: translateY(-50%) scale(1);
+}
+.progress-bar-buffered {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: rgba(255,255,255,0.15);
+  pointer-events: none;
+}
+.progress-tooltip {
+  position: absolute;
+  bottom: 32px;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  pointer-events: none;
+  display: none;
+  white-space: nowrap;
+}
+.progress-container:hover .progress-tooltip {
+  display: block;
+}
+
 video, audio {
   max-width: 100%;
   max-height: 100%;
@@ -413,6 +479,40 @@ function playAtIndex(index) {
   media.src = item.url;
   mediaContainer.appendChild(media);
 
+  // YouTube 风格进度条
+  const progressHTML = `
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-buffered" id="progressBuffered"></div>
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-tooltip" id="progressTooltip">0:00</div>
+    </div>`;
+  mediaContainer.insertAdjacentHTML('beforeend', progressHTML);
+
+  const progressContainer = document.getElementById('progressContainer');
+  const progressFill = document.getElementById('progressFill');
+  const progressBuffered = document.getElementById('progressBuffered');
+  const progressTooltip = document.getElementById('progressTooltip');
+
+  // 进度条点击跳转
+  progressContainer.addEventListener('click', e => {
+    if (!media) return;
+    const rect = progressContainer.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    media.currentTime = pct * media.duration;
+  });
+
+  // 进度条悬停提示
+  progressContainer.addEventListener('mousemove', e => {
+    if (!media || !media.duration) return;
+    const rect = progressContainer.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const time = pct * media.duration;
+    progressTooltip.textContent = formatTime(time);
+    progressTooltip.style.left = (pct * 100) + '%';
+  });
+
   // Play overlay
   const overlay = document.createElement('div');
   overlay.id = 'playOverlay';
@@ -422,9 +522,20 @@ function playAtIndex(index) {
 
   media.addEventListener('timeupdate', () => {
     updateTime();
+    // 更新进度条
+    if (media.duration) {
+      progressFill.style.width = (media.currentTime / media.duration * 100) + '%';
+    }
     // 每10秒自动保存进度
     if (media && Math.floor(media.currentTime) % 10 === 0) {
       saveProgress(item.name, media.currentTime);
+    }
+  });
+  media.addEventListener('progress', () => {
+    // 更新缓冲进度
+    if (media.buffered.length > 0 && media.duration) {
+      const buffered = media.buffered.end(media.buffered.length - 1);
+      progressBuffered.style.width = (buffered / media.duration * 100) + '%';
     }
   });
   media.addEventListener('loadedmetadata', () => {
