@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本地媒体播放器</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px;
+}
+.container {
+  width: 100%;
+  max-width: 960px;
+  background: #16213e;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  margin-top: 0;
+}
+.drop-zone {
+  border: 2px dashed #e94560;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 20px;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  background: rgba(233,69,96,0.1);
+  border-color: #ff6b6b;
+}
+.drop-zone p { font-size: 1.1em; color: #aaa; }
+.drop-zone .icon { font-size: 3em; margin-bottom: 10px; }
+#mediaWrapper {
+  display: none;
+  margin-top: 16px;
+}
+#mediaContainer {
+  position: relative;
+}
+#playOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+  pointer-events: auto;
+}
+#playOverlay:hover {
+  background: rgba(233,69,96,0.7);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+#playOverlay svg {
+  width: 36px;
+  height: 36px;
+  fill: white;
+  margin-left: 4px;
+}
+video, audio {
+  width: 100%;
+  border-radius: 8px;
+  outline: none;
+  background: #000;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.btn {
+  background: #0f3460;
+  border: none;
+  color: #eee;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn:hover { background: #e94560; }
+.btn.active { background: #e94560; }
+.speed-group {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.speed-btn {
+  background: #0f3460;
+  border: none;
+  color: #aaa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+.speed-btn:hover, .speed-btn.active {
+  background: #e94560;
+  color: #fff;
+}
+.skip-btn {
+  background: #533483;
+  border: none;
+  color: #eee;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+.skip-btn:hover { background: #7b2cbf; }
+.time-display {
+  color: #888;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+  min-width: 120px;
+  text-align: center;
+}
+.fileName {
+  color: #e94560;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+.shortcuts {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  font-size: 0.85em;
+  color: #666;
+}
+.shortcuts h3 { color: #888; margin-bottom: 8px; }
+.shortcuts span { color: #e94560; font-family: monospace; }
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.volume-control input[type="range"] {
+  width: 80px;
+  accent-color: #e94560;
+}
+.kbd {
+  background: #0f3460;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.95em;
+  color: #e94560;
+  border: 1px solid #533483;
+}
+</style>
+</head>
+<body>
+
+
+<div class="container">
+  <div class="drop-zone" id="dropZone" onclick="fileInput.click()">
+    <div class="icon">📂</div>
+    <p>拖拽视频或音频文件到这里</p>
+    <p style="margin-top:8px; font-size:0.85em; color:#666">或点击选择文件</p>
+  </div>
+  <input type="file" id="fileInput" accept="video/*,audio/*" style="display:none">
+
+  <div id="mediaWrapper">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+      <span class="fileName" id="fileName" style="margin-bottom:0;"></span>
+      <button class="btn" onclick="fileInput.click()" style="padding:6px 12px; font-size:0.85em; white-space:nowrap;">📂 换一个</button>
+    </div>
+    <div id="mediaContainer"></div>
+
+    <div class="shortcuts" style="display:block; margin-top:12px; margin-bottom:10px; padding:10px 14px;">
+      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:0.85em; color:#888;">
+        <span class="kbd">Space</span> 播放/暂停
+        <span class="kbd">←</span> -5s <span class="kbd">→</span> +5s
+        <span class="kbd">Shift+←</span> -10s <span class="kbd">Shift+→</span> +10s
+        <span class="kbd">[</span> 减速 <span class="kbd">]</span> 加速
+        <span class="kbd">↑↓</span> 音量 <span class="kbd">M</span> 静音
+        <span style="margin-left:auto; color:#e94560; font-size:1.4em; font-weight:bold;" id="currentSpeed">1x</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="skip-btn" onclick="skip(-10)">⏪ -10s</button>
+      <button class="skip-btn" onclick="skip(-5)">⏪ -5s</button>
+      <button class="btn" id="playBtn" onclick="togglePlay()">▶ 播放</button>
+      <button class="skip-btn" onclick="skip(5)">+5s ⏩</button>
+      <button class="skip-btn" onclick="skip(10)">+10s ⏩</button>
+
+      <div class="volume-control">
+        <span>🔊</span>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+      </div>
+
+      <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+    </div>
+
+    <div class="controls">
+      <span style="color:#888; font-size:0.9em;">倍速：</span>
+      <div class="speed-group" id="speedGroup">
+        <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+        <button class="speed-btn" onclick="setSpeed(0.75)">0.75x</button>
+        <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+        <button class="speed-btn" onclick="setSpeed(1.25)">1.25x</button>
+        <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+        <button class="speed-btn" onclick="setSpeed(3)">3x</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let media = null;
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const mediaWrapper = document.getElementById('mediaWrapper');
+const mediaContainer = document.getElementById('mediaContainer');
+const playBtn = document.getElementById('playBtn');
+const timeDisplay = document.getElementById('timeDisplay');
+const fileNameEl = document.getElementById('fileName');
+const speedGroup = document.getElementById('speedGroup');
+const volumeSlider = document.getElementById('volumeSlider');
+
+// Drag & drop
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) loadFile(e.target.files[0]); });
+
+function loadFile(file) {
+  const url = URL.createObjectURL(file);
+  const isVideo = file.type.startsWith('video');
+  fileNameEl.textContent = file.name;
+
+  mediaContainer.innerHTML = '';
+  media = document.createElement(isVideo ? 'video' : 'audio');
+  media.controls = false;
+  media.style.width = '100%';
+  if (isVideo) media.style.maxHeight = '540px';
+  media.src = url;
+  mediaContainer.appendChild(media);
+
+  // Add play overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'playOverlay';
+  overlay.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+  overlay.onclick = () => { media.play(); };
+  mediaContainer.appendChild(overlay);
+
+  media.addEventListener('timeupdate', updateTime);
+  media.addEventListener('loadedmetadata', updateTime);
+  media.addEventListener('play', () => {
+    playBtn.textContent = '⏸ 暂停';
+    overlay.style.display = 'none';
+  });
+  media.addEventListener('pause', () => {
+    playBtn.textContent = '▶ 播放';
+    overlay.style.display = 'flex';
+  });
+
+  mediaWrapper.style.display = 'block';
+  dropZone.style.display = 'none';
+  setSpeed(1);
+}
+
+function togglePlay() {
+  if (!media) return;
+  media.paused ? media.play() : media.pause();
+}
+
+function skip(seconds) {
+  if (!media) return;
+  media.currentTime = Math.max(0, Math.min(media.duration, media.currentTime + seconds));
+}
+
+function setSpeed(rate) {
+  if (!media) return;
+  media.playbackRate = rate;
+  document.getElementById('currentSpeed').textContent = rate + 'x';
+  speedGroup.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.classList.toggle('active', parseFloat(btn.textContent) === rate);
+  });
+}
+
+function setVolume(v) { if (media) media.volume = v; }
+
+function updateTime() {
+  if (!media) return;
+  timeDisplay.textContent = formatTime(media.currentTime) + ' / ' + formatTime(media.duration);
+}
+
+function formatTime(s) {
+  if (isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (!media || e.target.tagName === 'INPUT') return;
+  switch(e.key) {
+    case ' ': e.preventDefault(); togglePlay(); break;
+    case 'ArrowLeft': skip(e.shiftKey ? -10 : -5); break;
+    case 'ArrowRight': skip(e.shiftKey ? 10 : 5); break;
+    case 'ArrowUp': e.preventDefault(); volumeSlider.value = Math.min(1, media.volume + 0.1); setVolume(volumeSlider.value); break;
+    case 'ArrowDown': e.preventDefault(); volumeSlider.value = Math.max(0, media.volume - 0.1); setVolume(volumeSlider.value); break;
+    case 'm': case 'M': media.muted = !media.muted; break;
+    case '[': setSpeed(Math.max(0.25, media.playbackRate - 0.25)); break;
+    case ']': setSpeed(Math.min(4, media.playbackRate + 0.25)); break;
+  }
+});
+</script>
+</body>
+</html>
