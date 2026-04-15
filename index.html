@@ -23,7 +23,6 @@ body {
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  margin-top: 0;
 }
 .drop-zone {
   border: 2px dashed #e94560;
@@ -32,7 +31,7 @@ body {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .drop-zone:hover, .drop-zone.dragover {
   background: rgba(233,69,96,0.1);
@@ -40,40 +39,25 @@ body {
 }
 .drop-zone p { font-size: 1.1em; color: #aaa; }
 .drop-zone .icon { font-size: 3em; margin-bottom: 10px; }
-#mediaWrapper {
-  display: none;
-  margin-top: 16px;
-}
-#mediaContainer {
-  position: relative;
-}
+#mediaWrapper { display: none; }
+#mediaContainer { position: relative; }
 #playOverlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
+  width: 80px; height: 80px;
   background: rgba(0,0,0,0.5);
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
   z-index: 10;
-  pointer-events: auto;
 }
 #playOverlay:hover {
   background: rgba(233,69,96,0.7);
   transform: translate(-50%, -50%) scale(1.1);
 }
-#playOverlay svg {
-  width: 36px;
-  height: 36px;
-  fill: white;
-  margin-left: 4px;
-}
+#playOverlay svg { width: 36px; height: 36px; fill: white; margin-left: 4px; }
 video, audio {
   width: 100%;
   border-radius: 8px;
@@ -81,141 +65,172 @@ video, audio {
   background: #000;
 }
 .controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  flex-wrap: wrap;
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 12px; flex-wrap: wrap;
 }
 .btn {
-  background: #0f3460;
-  border: none;
-  color: #eee;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
+  background: #0f3460; border: none; color: #eee;
+  padding: 8px 14px; border-radius: 8px;
+  cursor: pointer; font-size: 0.95em;
   transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: flex; align-items: center; gap: 4px;
 }
 .btn:hover { background: #e94560; }
 .btn.active { background: #e94560; }
-.speed-group {
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
-}
+.btn-sm { padding: 5px 10px; font-size: 0.85em; }
+.speed-group { display: flex; gap: 4px; margin-left: auto; }
 .speed-btn {
-  background: #0f3460;
-  border: none;
-  color: #aaa;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9em;
+  background: #0f3460; border: none; color: #aaa;
+  padding: 6px 10px; border-radius: 6px;
+  cursor: pointer; font-size: 0.85em;
   transition: all 0.2s;
 }
-.speed-btn:hover, .speed-btn.active {
-  background: #e94560;
-  color: #fff;
-}
+.speed-btn:hover, .speed-btn.active { background: #e94560; color: #fff; }
 .skip-btn {
-  background: #533483;
-  border: none;
-  color: #eee;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
+  background: #533483; border: none; color: #eee;
+  padding: 8px 12px; border-radius: 8px;
+  cursor: pointer; font-size: 1em;
   transition: background 0.2s;
 }
 .skip-btn:hover { background: #7b2cbf; }
 .time-display {
-  color: #888;
-  font-size: 0.9em;
+  color: #888; font-size: 0.9em;
   font-variant-numeric: tabular-nums;
-  min-width: 120px;
-  text-align: center;
+  min-width: 120px; text-align: center;
 }
-.fileName {
-  color: #e94560;
-  font-size: 0.9em;
-  margin-bottom: 8px;
-  word-break: break-all;
-}
-.shortcuts {
-  margin-top: 24px;
-  padding: 16px;
+.shortcuts-bar {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; font-size: 0.85em; color: #888;
+  margin-top: 10px; margin-bottom: 8px;
+  padding: 8px 12px;
   background: rgba(255,255,255,0.03);
   border-radius: 8px;
-  font-size: 0.85em;
-  color: #666;
-}
-.shortcuts h3 { color: #888; margin-bottom: 8px; }
-.shortcuts span { color: #e94560; font-family: monospace; }
-.volume-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.volume-control input[type="range"] {
-  width: 80px;
-  accent-color: #e94560;
 }
 .kbd {
-  background: #0f3460;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.95em;
-  color: #e94560;
+  background: #0f3460; padding: 2px 8px;
+  border-radius: 4px; font-family: monospace;
+  font-size: 0.95em; color: #e94560;
   border: 1px solid #533483;
+}
+.volume-control { display: flex; align-items: center; gap: 6px; }
+.volume-control input[type="range"] { width: 80px; accent-color: #e94560; }
+
+/* 播放列表 */
+.playlist-section {
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 10px;
+}
+.playlist-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.playlist-header h3 {
+  font-size: 0.95em; color: #888; font-weight: normal;
+}
+.playlist-header h3 span { color: #e94560; margin-left: 4px; }
+.playlist-actions { display: flex; gap: 6px; }
+.playlist {
+  max-height: 240px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.2);
+}
+.playlist::-webkit-scrollbar { width: 6px; }
+.playlist::-webkit-scrollbar-thumb { background: #533483; border-radius: 3px; }
+.playlist-item {
+  display: flex; align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.playlist-item:last-child { border-bottom: none; }
+.playlist-item:hover { background: rgba(255,255,255,0.05); }
+.playlist-item.active {
+  background: rgba(233,69,96,0.15);
+}
+.playlist-item .index {
+  color: #555; font-size: 0.8em;
+  min-width: 20px; text-align: center;
+}
+.playlist-item.active .index { color: #e94560; }
+.playlist-item .name {
+  flex: 1;
+  font-size: 0.9em;
+  color: #aaa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.playlist-item.active .name { color: #e94560; font-weight: 500; }
+.playlist-item .type-icon {
+  font-size: 0.85em;
+  opacity: 0.6;
+}
+.playlist-item .remove-btn {
+  opacity: 0;
+  background: none; border: none;
+  color: #666; cursor: pointer;
+  font-size: 1.1em; padding: 0 4px;
+  transition: all 0.15s;
+}
+.playlist-item:hover .remove-btn { opacity: 1; }
+.playlist-item .remove-btn:hover { color: #e94560; }
+.playlist-empty {
+  text-align: center; padding: 24px;
+  color: #555; font-size: 0.9em;
+}
+.top-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.top-bar .fileName {
+  flex: 1; color: #e94560; font-size: 0.9em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 </style>
 </head>
 <body>
 
-
 <div class="container">
-  <div class="drop-zone" id="dropZone" onclick="fileInput.click()">
+  <div class="drop-zone" id="dropZone">
     <div class="icon">📂</div>
     <p>拖拽视频或音频文件到这里</p>
-    <p style="margin-top:8px; font-size:0.85em; color:#666">或点击选择文件</p>
+    <p style="margin-top:8px; font-size:0.85em; color:#666">或点击选择文件（支持多选）</p>
   </div>
-  <input type="file" id="fileInput" accept="video/*,audio/*" style="display:none">
+  <input type="file" id="fileInput" accept="video/*,audio/*" multiple style="display:none">
 
   <div id="mediaWrapper">
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-      <span class="fileName" id="fileName" style="margin-bottom:0;"></span>
-      <button class="btn" onclick="fileInput.click()" style="padding:6px 12px; font-size:0.85em; white-space:nowrap;">📂 换一个</button>
+    <div class="top-bar">
+      <span class="fileName" id="fileName"></span>
+      <button class="btn btn-sm" onclick="fileInput.click()">＋ 添加</button>
     </div>
     <div id="mediaContainer"></div>
 
-    <div class="shortcuts" style="display:block; margin-top:12px; margin-bottom:10px; padding:10px 14px;">
-      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:0.85em; color:#888;">
-        <span class="kbd">Space</span> 播放/暂停
-        <span class="kbd">←</span> -5s <span class="kbd">→</span> +5s
-        <span class="kbd">Shift+←</span> -10s <span class="kbd">Shift+→</span> +10s
-        <span class="kbd">[</span> 减速 <span class="kbd">]</span> 加速
-        <span class="kbd">↑↓</span> 音量 <span class="kbd">M</span> 静音
-        <span style="margin-left:auto; color:#e94560; font-size:1.4em; font-weight:bold;" id="currentSpeed">1x</span>
-      </div>
+    <div class="shortcuts-bar">
+      <span class="kbd">Space</span> 播放/暂停
+      <span class="kbd">←→</span> 快进退
+      <span class="kbd">N</span> 下一个 <span class="kbd">P</span> 上一个
+      <span class="kbd">[ ]</span> 倍速
+      <span class="kbd">↑↓</span> 音量 <span class="kbd">M</span> 静音
+      <span style="margin-left:auto; color:#e94560; font-size:1.4em; font-weight:bold;" id="currentSpeed">1x</span>
     </div>
 
     <div class="controls">
+      <button class="skip-btn" onclick="playPrev()">⏮ 上一个</button>
       <button class="skip-btn" onclick="skip(-10)">⏪ -10s</button>
       <button class="skip-btn" onclick="skip(-5)">⏪ -5s</button>
       <button class="btn" id="playBtn" onclick="togglePlay()">▶ 播放</button>
       <button class="skip-btn" onclick="skip(5)">+5s ⏩</button>
       <button class="skip-btn" onclick="skip(10)">+10s ⏩</button>
+      <button class="skip-btn" onclick="playNext()">下一个 ⏭</button>
 
       <div class="volume-control">
         <span>🔊</span>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
       </div>
-
       <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
     </div>
 
@@ -232,11 +247,28 @@ video, audio {
       </div>
     </div>
 
+    <div class="playlist-section">
+      <div class="playlist-header">
+        <h3>播放列表 <span id="playlistCount">0</span></h3>
+        <div class="playlist-actions">
+          <button class="btn btn-sm" onclick="fileInput.click()">＋ 添加文件</button>
+          <button class="btn btn-sm" onclick="clearPlaylist()" style="color:#888;">清空</button>
+        </div>
+      </div>
+      <div class="playlist" id="playlist">
+        <div class="playlist-empty">播放列表为空</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
+// 播放列表
+let playlist = [];
+let currentIndex = -1;
 let media = null;
+
+// DOM
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const mediaWrapper = document.getElementById('mediaWrapper');
@@ -246,35 +278,65 @@ const timeDisplay = document.getElementById('timeDisplay');
 const fileNameEl = document.getElementById('fileName');
 const speedGroup = document.getElementById('speedGroup');
 const volumeSlider = document.getElementById('volumeSlider');
+const playlistEl = document.getElementById('playlist');
+const playlistCount = document.getElementById('playlistCount');
 
-// Drag & drop
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => { if (e.target.files.length) loadFile(e.target.files[0]); });
+// 添加文件到播放列表
+function addFiles(files) {
+  for (const file of files) {
+    playlist.push({
+      file: file,
+      name: file.name,
+      url: URL.createObjectURL(file),
+      isVideo: file.type.startsWith('video')
+    });
+  }
+  renderPlaylist();
+  if (currentIndex === -1 && playlist.length > 0) {
+    playAtIndex(0);
+  }
+}
 
-function loadFile(file) {
-  const url = URL.createObjectURL(file);
-  const isVideo = file.type.startsWith('video');
-  fileNameEl.textContent = file.name;
+// 渲染播放列表
+function renderPlaylist() {
+  playlistCount.textContent = playlist.length;
+  if (playlist.length === 0) {
+    playlistEl.innerHTML = '<div class="playlist-empty">播放列表为空</div>';
+    mediaWrapper.style.display = 'none';
+    dropZone.style.display = 'block';
+    return;
+  }
+  playlistEl.innerHTML = playlist.map((item, i) => `
+    <div class="playlist-item ${i === currentIndex ? 'active' : ''}" onclick="playAtIndex(${i})">
+      <span class="index">${i + 1}</span>
+      <span class="type-icon">${item.isVideo ? '🎬' : '🎵'}</span>
+      <span class="name" title="${item.name}">${item.name}</span>
+      <button class="remove-btn" onclick="event.stopPropagation(); removeFromPlaylist(${i})">✕</button>
+    </div>
+  `).join('');
+}
 
+// 播放指定索引
+function playAtIndex(index) {
+  if (index < 0 || index >= playlist.length) return;
+  currentIndex = index;
+  const item = playlist[index];
+
+  fileNameEl.textContent = item.name;
   mediaContainer.innerHTML = '';
-  media = document.createElement(isVideo ? 'video' : 'audio');
+
+  media = document.createElement(item.isVideo ? 'video' : 'audio');
   media.controls = false;
   media.style.width = '100%';
-  if (isVideo) media.style.maxHeight = '540px';
-  media.src = url;
+  if (item.isVideo) media.style.maxHeight = '540px';
+  media.src = item.url;
   mediaContainer.appendChild(media);
 
-  // Add play overlay
+  // Play overlay
   const overlay = document.createElement('div');
   overlay.id = 'playOverlay';
-  overlay.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-  overlay.onclick = () => { media.play(); };
+  overlay.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  overlay.onclick = () => media.play();
   mediaContainer.appendChild(overlay);
 
   media.addEventListener('timeupdate', updateTime);
@@ -287,12 +349,56 @@ function loadFile(file) {
     playBtn.textContent = '▶ 播放';
     overlay.style.display = 'flex';
   });
+  media.addEventListener('ended', () => playNext());
 
   mediaWrapper.style.display = 'block';
   dropZone.style.display = 'none';
-  setSpeed(1);
+  renderPlaylist();
+  media.play();
 }
 
+// 从播放列表移除
+function removeFromPlaylist(index) {
+  if (index === currentIndex) {
+    if (playlist.length > 1) {
+      const nextIndex = index < playlist.length - 1 ? index : index - 1;
+      playlist.splice(index, 1);
+      currentIndex = nextIndex >= playlist.length ? playlist.length - 1 : nextIndex;
+      if (playlist.length > 0) playAtIndex(currentIndex);
+    } else {
+      playlist = [];
+      currentIndex = -1;
+      media = null;
+      mediaContainer.innerHTML = '';
+      renderPlaylist();
+    }
+  } else {
+    playlist.splice(index, 1);
+    if (index < currentIndex) currentIndex--;
+    renderPlaylist();
+  }
+}
+
+// 清空播放列表
+function clearPlaylist() {
+  playlist = [];
+  currentIndex = -1;
+  media = null;
+  mediaContainer.innerHTML = '';
+  renderPlaylist();
+}
+
+// 上一个
+function playPrev() {
+  if (currentIndex > 0) playAtIndex(currentIndex - 1);
+}
+
+// 下一个
+function playNext() {
+  if (currentIndex < playlist.length - 1) playAtIndex(currentIndex + 1);
+}
+
+// 播放控制
 function togglePlay() {
   if (!media) return;
   media.paused ? media.play() : media.pause();
@@ -326,18 +432,34 @@ function formatTime(s) {
   return m + ':' + String(sec).padStart(2, '0');
 }
 
-// Keyboard shortcuts
+// 拖拽 - 支持多文件
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) addFiles(e.target.files);
+  fileInput.value = '';
+});
+
+// 快捷键
 document.addEventListener('keydown', e => {
-  if (!media || e.target.tagName === 'INPUT') return;
+  if (e.target.tagName === 'INPUT') return;
   switch(e.key) {
     case ' ': e.preventDefault(); togglePlay(); break;
     case 'ArrowLeft': skip(e.shiftKey ? -10 : -5); break;
     case 'ArrowRight': skip(e.shiftKey ? 10 : 5); break;
-    case 'ArrowUp': e.preventDefault(); volumeSlider.value = Math.min(1, media.volume + 0.1); setVolume(volumeSlider.value); break;
-    case 'ArrowDown': e.preventDefault(); volumeSlider.value = Math.max(0, media.volume - 0.1); setVolume(volumeSlider.value); break;
-    case 'm': case 'M': media.muted = !media.muted; break;
-    case '[': setSpeed(Math.max(0.25, media.playbackRate - 0.25)); break;
-    case ']': setSpeed(Math.min(4, media.playbackRate + 0.25)); break;
+    case 'ArrowUp': e.preventDefault(); if(media) { volumeSlider.value = Math.min(1, media.volume + 0.1); setVolume(volumeSlider.value); } break;
+    case 'ArrowDown': e.preventDefault(); if(media) { volumeSlider.value = Math.max(0, media.volume - 0.1); setVolume(volumeSlider.value); } break;
+    case 'm': case 'M': if(media) media.muted = !media.muted; break;
+    case '[': if(media) setSpeed(Math.max(0.25, media.playbackRate - 0.25)); break;
+    case ']': if(media) setSpeed(Math.min(4, media.playbackRate + 0.25)); break;
+    case 'n': case 'N': playNext(); break;
+    case 'p': case 'P': playPrev(); break;
   }
 });
 </script>
