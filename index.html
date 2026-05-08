@@ -357,14 +357,6 @@ video, audio {
   font-size: 0.95em; color: #e94560;
   border: 1px solid #533483;
 }
-.top-bar {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 6px;
-}
-.top-bar .fileName {
-  flex: 1; color: #e94560; font-size: 0.85em;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
 
 /* 右侧播放列表 */
 .playlist-panel {
@@ -426,10 +418,6 @@ video, audio {
     opacity: 1;
     padding: 8px;
     font-size: 1.2em;
-  }
-  .top-bar .btn {
-    min-height: 36px;
-    padding: 6px 12px;
   }
 }
 .playlist-header {
@@ -511,10 +499,6 @@ video, audio {
     <input type="file" id="fileInput" accept="video/*,audio/*,.mp3,.wav,.ogg,.flac,.aac,.wma,.m4a,.opus,.ape" multiple style="display:none">
 
     <div id="mediaWrapper">
-      <div class="top-bar">
-        <span class="fileName" id="fileName"></span>
-        <button class="btn btn-sm" onclick="fileInput.click()">＋ 添加</button>
-      </div>
       <div id="mediaContainer"></div>
 
       <div class="shortcuts-bar">
@@ -581,7 +565,6 @@ const mediaWrapper = document.getElementById('mediaWrapper');
 const mediaContainer = document.getElementById('mediaContainer');
 const playBtn = document.getElementById('playBtn');
 const timeDisplay = document.getElementById('timeDisplay');
-const fileNameEl = document.getElementById('fileName');
 const playlistEl = document.getElementById('playlist');
 const playlistCount = document.getElementById('playlistCount');
 const statsLeft = document.getElementById('statsLeft');
@@ -672,7 +655,6 @@ function playAtIndex(index) {
 
   currentIndex = index;
   const item = playlist[index];
-  fileNameEl.textContent = item.name;
   mediaContainer.innerHTML = '';
 
   media = document.createElement(item.isVideo ? 'video' : 'audio');
