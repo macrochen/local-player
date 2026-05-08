@@ -213,6 +213,7 @@ body {
   cursor: pointer;
   display: flex;
   align-items: flex-end;
+  touch-action: none;
 }
 .progress-bar-bg {
   width: 100%;
@@ -740,22 +741,28 @@ function playAtIndex(index) {
 
   // 进度条触摸支持
   let touchSeeking = false;
+  let touchPct = 0;
   function handleTouch(e) {
     if (!media || !media.duration) return;
     const touch = e.touches[0];
     const rect = progressContainer.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
-    media.currentTime = pct * media.duration;
-    progressFill.style.width = (pct * 100) + '%';
+    touchPct = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    // 只更新视觉位置，不实时 seek（iOS 上不可靠）
+    progressFill.style.width = (touchPct * 100) + '%';
   }
   progressContainer.addEventListener('touchstart', e => {
     touchSeeking = true;
     handleTouch(e);
-  }, { passive: true });
+  }, { passive: false });
   progressContainer.addEventListener('touchmove', e => {
     if (touchSeeking) { e.preventDefault(); handleTouch(e); }
   }, { passive: false });
-  progressContainer.addEventListener('touchend', () => { touchSeeking = false; });
+  progressContainer.addEventListener('touchend', () => {
+    if (touchSeeking && media && media.duration) {
+      media.currentTime = touchPct * media.duration;
+    }
+    touchSeeking = false;
+  });
 
   // 进度条悬停提示
   progressContainer.addEventListener('mousemove', e => {
