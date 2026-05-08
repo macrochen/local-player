@@ -328,6 +328,103 @@ video, audio {
   height: 5px;
   background: rgba(255,255,255,0.35);
 }
+/* 定时器下拉菜单 */
+.sleep-timer {
+  position: relative;
+  margin-left: 8px;
+}
+.sleep-timer-btn {
+  background: #0f3460;
+  border: none;
+  color: #aaa;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sleep-timer-btn:hover,
+.sleep-timer-btn.active {
+  background: #e94560;
+  color: #fff;
+}
+.sleep-timer-btn .timer-icon {
+  font-size: 1.1em;
+}
+.sleep-timer-btn .timer-remain {
+  font-size: 0.75em;
+  opacity: 0.8;
+  margin-left: 2px;
+}
+.sleep-dropdown {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #16213e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 6px 0;
+  margin-bottom: 8px;
+  min-width: 150px;
+  z-index: 100;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+}
+.sleep-dropdown.show {
+  display: block;
+}
+.sleep-dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.85em;
+  color: #aaa;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.sleep-dropdown-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}
+.sleep-dropdown-item.active {
+  color: #e94560;
+  background: rgba(233,69,96,0.1);
+}
+.sleep-dropdown-item .check {
+  width: 16px;
+  text-align: center;
+  opacity: 0;
+}
+.sleep-dropdown-item.active .check {
+  opacity: 1;
+}
+.sleep-custom {
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sleep-custom input {
+  width: 50px;
+  background: #0f3460;
+  border: 1px solid #533483;
+  color: #eee;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  text-align: center;
+}
+.sleep-custom span {
+  font-size: 0.8em;
+  color: #888;
+}
 .skip-btn {
   background: #533483; border: none; color: #eee;
   padding: 7px 10px; border-radius: 8px;
@@ -523,6 +620,40 @@ video, audio {
             <span>2x</span>
             <span>3x</span>
             <span>4x</span>
+          </div>
+        </div>
+        <div class="sleep-timer">
+          <button class="sleep-timer-btn" id="sleepTimerBtn" onclick="toggleSleepDropdown()">
+            <span class="timer-icon">⏰</span>
+            <span id="sleepTimerText">定时</span>
+            <span class="timer-remain" id="sleepRemain" style="display:none"></span>
+          </button>
+          <div class="sleep-dropdown" id="sleepDropdown">
+            <div class="sleep-dropdown-item active" data-minutes="0" onclick="setSleepTimer(0)">
+              <span class="check">✓</span>不定时
+            </div>
+            <div class="sleep-dropdown-item" data-minutes="15" onclick="setSleepTimer(15)">
+              <span class="check">✓</span>15分钟
+            </div>
+            <div class="sleep-dropdown-item" data-minutes="30" onclick="setSleepTimer(30)">
+              <span class="check">✓</span>30分钟
+            </div>
+            <div class="sleep-dropdown-item" data-minutes="45" onclick="setSleepTimer(45)">
+              <span class="check">✓</span>45分钟
+            </div>
+            <div class="sleep-dropdown-item" data-minutes="60" onclick="setSleepTimer(60)">
+              <span class="check">✓</span>60分钟
+            </div>
+            <div class="sleep-dropdown-item" data-minutes="90" onclick="setSleepTimer(90)">
+              <span class="check">✓</span>90分钟
+            </div>
+            <div class="sleep-dropdown-item" data-minutes="-1" onclick="setSleepTimer(-1)">
+              <span class="check">✓</span>播完当前停止
+            </div>
+            <div class="sleep-custom">
+              <input type="number" id="sleepCustomMin" min="1" max="999" placeholder="分钟" onkeypress="if(event.key==='Enter')setSleepCustom()">
+              <span>分钟后</span>
+              <button class="btn btn-sm" onclick="setSleepCustom()">确定</button>
           </div>
         </div>
       </div>
@@ -808,6 +939,7 @@ function playAtIndex(index) {
     saveProgress(item.name, media.currentTime);
   });
   media.addEventListener('ended', () => {
+    handleMediaEnded(); // 处理定时器"播完停止"模式
     clearProgress(item.name); // 播完清除进度
     const disc = document.getElementById('vinylDisc');
     const arm = document.getElementById('tonearm');
@@ -909,6 +1041,126 @@ function formatTime(s) {
   return m + ':' + String(sec).padStart(2, '0');
 }
 
+// 定时器
+let sleepTimerId = null;
+let sleepEndTime = 0;
+let sleepMode = 0; // 0=不定时, -1=播完停止, >0=分钟后停止
+const SLEEP_KEY = 'local-player-sleep';
+
+function toggleSleepDropdown() {
+  const dropdown = document.getElementById('sleepDropdown');
+  dropdown.classList.toggle('show');
+  // 点击外部关闭
+  if (dropdown.classList.contains('show')) {
+    setTimeout(() => {
+      document.addEventListener('click', closeSleepDropdown, { once: true });
+    }, 0);
+  }
+}
+
+function closeSleepDropdown(e) {
+  const dropdown = document.getElementById('sleepDropdown');
+  const btn = document.getElementById('sleepTimerBtn');
+  if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove('show');
+  }
+}
+
+function setSleepTimer(minutes) {
+  // 清除之前的定时器
+  if (sleepTimerId) {
+    clearInterval(sleepTimerId);
+    sleepTimerId = null;
+  }
+  
+  sleepMode = minutes;
+  
+  // 更新UI选中状态
+  document.querySelectorAll('.sleep-dropdown-item').forEach(item => {
+    const val = parseInt(item.dataset.minutes);
+    item.classList.toggle('active', val === minutes);
+  });
+  
+  const btn = document.getElementById('sleepTimerBtn');
+  const textEl = document.getElementById('sleepTimerText');
+  const remainEl = document.getElementById('sleepRemain');
+  
+  if (minutes === 0) {
+    // 不定时
+    btn.classList.remove('active');
+    textEl.textContent = '定时';
+    remainEl.style.display = 'none';
+    document.getElementById('sleepDropdown').classList.remove('show');
+    try { localStorage.removeItem(SLEEP_KEY); } catch {}
+  } else if (minutes === -1) {
+    // 播完当前停止
+    btn.classList.add('active');
+    textEl.textContent = '播完停';
+    remainEl.style.display = 'none';
+    document.getElementById('sleepDropdown').classList.remove('show');
+    try { localStorage.setItem(SLEEP_KEY, '-1'); } catch {}
+  } else {
+    // 指定分钟后停止
+    btn.classList.add('active');
+    sleepEndTime = Date.now() + minutes * 60 * 1000;
+    updateSleepRemain();
+    sleepTimerId = setInterval(updateSleepRemain, 1000);
+    document.getElementById('sleepDropdown').classList.remove('show');
+    try { localStorage.setItem(SLEEP_KEY, minutes.toString()); } catch {}
+  }
+}
+
+function setSleepCustom() {
+  const input = document.getElementById('sleepCustomMin');
+  const minutes = parseInt(input.value);
+  if (minutes && minutes > 0) {
+    setSleepTimer(minutes);
+    input.value = '';
+  }
+}
+
+function updateSleepRemain() {
+  const remainEl = document.getElementById('sleepRemain');
+  const textEl = document.getElementById('sleepTimerText');
+  const btn = document.getElementById('sleepTimerBtn');
+  
+  const remain = Math.max(0, sleepEndTime - Date.now());
+  if (remain <= 0) {
+    // 时间到，暂停播放
+    if (media && !media.paused) {
+      media.pause();
+    }
+    setSleepTimer(0);
+    return;
+  }
+  
+  const mins = Math.floor(remain / 60000);
+  const secs = Math.floor((remain % 60000) / 1000);
+  remainEl.style.display = 'inline';
+  remainEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+  textEl.textContent = '剩余';
+}
+
+// 监听媒体播放结束事件，用于"播完当前停止"模式
+function handleMediaEnded() {
+  if (sleepMode === -1) {
+    setSleepTimer(0);
+  }
+}
+
+// 恢复保存的定时器设置
+function restoreSleepTimer() {
+  try {
+    const saved = localStorage.getItem(SLEEP_KEY);
+    if (saved) {
+      const minutes = parseInt(saved);
+      if (minutes && minutes > 0) {
+        setSleepTimer(minutes);
+      }
+    }
+  } catch {}
+}
+
 // 拖拽 - 支持多文件
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -941,6 +1193,9 @@ window.addEventListener('beforeunload', () => {
     saveProgress(playlist[currentIndex].name, media.currentTime);
   }
 });
+
+// 页面加载时恢复定时器设置
+restoreSleepTimer();
 </script>
 </body>
 </html>
