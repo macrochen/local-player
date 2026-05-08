@@ -571,6 +571,7 @@ let media = null;
 
 // localStorage key
 const STORAGE_KEY = 'local-player-progress';
+const SPEED_KEY = 'local-player-speed';
 
 // DOM
 const dropZone = document.getElementById('dropZone');
@@ -679,6 +680,17 @@ function playAtIndex(index) {
   media.style.maxHeight = '100%';
   media.style.cursor = 'pointer';
   media.src = item.url;
+
+  // 恢复保存的播放速度
+  try {
+    const savedSpeed = parseFloat(localStorage.getItem(SPEED_KEY));
+    if (savedSpeed && savedSpeed >= 0.25 && savedSpeed <= 4) {
+      media.playbackRate = savedSpeed;
+      document.getElementById('currentSpeed').textContent = savedSpeed + 'x';
+      document.getElementById('speedSlider').value = savedSpeed;
+      document.getElementById('speedSliderVal').textContent = savedSpeed + 'x';
+    }
+  } catch {}
 
   if (item.isVideo) {
     media.addEventListener('click', () => togglePlay());
@@ -892,6 +904,7 @@ function setSpeed(rate) {
   document.getElementById('currentSpeed').textContent = rate + 'x';
   document.getElementById('speedSlider').value = rate;
   document.getElementById('speedSliderVal').textContent = rate + 'x';
+  try { localStorage.setItem(SPEED_KEY, rate); } catch {}
 }
 
 
