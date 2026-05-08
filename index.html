@@ -288,6 +288,18 @@ video, audio {
 .btn:hover { background: #e94560; }
 .btn-sm { padding: 5px 10px; font-size: 0.8em; }
 .speed-group { display: flex; gap: 3px; margin-left: auto; }
+.speed-slider-wrap {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: 8px; flex-shrink: 0;
+}
+.speed-slider-wrap input[type="range"] {
+  width: 100px; accent-color: #e94560;
+}
+.speed-slider-val {
+  color: #e94560; font-size: 0.85em;
+  min-width: 36px; text-align: center;
+  font-variant-numeric: tabular-nums;
+}
 .speed-btn {
   background: #0f3460; border: none; color: #aaa;
   padding: 5px 8px; border-radius: 5px;
@@ -377,6 +389,14 @@ video, audio {
     margin-left: 0;
     flex-wrap: wrap;
     gap: 4px;
+  }
+  .speed-slider-wrap {
+    margin-left: 0;
+    width: 100%;
+  }
+  .speed-slider-wrap input[type="range"] {
+    flex: 1;
+    width: auto;
   }
   .volume-control input[type="range"] {
     width: 80px;
@@ -526,6 +546,10 @@ video, audio {
           <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
           <button class="speed-btn" onclick="setSpeed(2)">2x</button>
           <button class="speed-btn" onclick="setSpeed(3)">3x</button>
+        </div>
+        <div class="speed-slider-wrap">
+          <input type="range" id="speedSlider" min="0.25" max="4" step="0.05" value="1" oninput="setSpeed(parseFloat(this.value))">
+          <span class="speed-slider-val" id="speedSliderVal">1x</span>
         </div>
       </div>
     </div>
@@ -887,6 +911,8 @@ function setSpeed(rate) {
   speedGroup.querySelectorAll('.speed-btn').forEach(btn => {
     btn.classList.toggle('active', parseFloat(btn.textContent) === rate);
   });
+  document.getElementById('speedSlider').value = rate;
+  document.getElementById('speedSliderVal').textContent = rate + 'x';
 }
 
 function setVolume(v) { if (media) media.volume = v; }
