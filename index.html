@@ -287,26 +287,46 @@ video, audio {
 }
 .btn:hover { background: #e94560; }
 .btn-sm { padding: 5px 10px; font-size: 0.8em; }
-.speed-group { display: flex; gap: 3px; margin-left: auto; }
 .speed-slider-wrap {
   display: flex; align-items: center; gap: 6px;
   margin-left: 8px; flex-shrink: 0;
+  position: relative;
+  padding-bottom: 22px;
 }
 .speed-slider-wrap input[type="range"] {
-  width: 100px; accent-color: #e94560;
+  width: 120px; accent-color: #e94560;
 }
 .speed-slider-val {
   color: #e94560; font-size: 0.85em;
   min-width: 36px; text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.speed-btn {
-  background: #0f3460; border: none; color: #aaa;
-  padding: 5px 8px; border-radius: 5px;
-  cursor: pointer; font-size: 0.8em;
-  transition: all 0.2s;
+.speed-ticks {
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 36px;
+  display: flex;
+  justify-content: space-between;
 }
-.speed-btn:hover, .speed-btn.active { background: #e94560; color: #fff; }
+.speed-ticks span {
+  color: rgba(255,255,255,0.45);
+  font-size: 10px;
+  position: relative;
+  text-align: center;
+  width: 0;
+  display: flex;
+  justify-content: center;
+}
+.speed-ticks span::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 5px;
+  background: rgba(255,255,255,0.35);
+}
 .skip-btn {
   background: #533483; border: none; color: #eee;
   padding: 7px 10px; border-radius: 8px;
@@ -319,8 +339,7 @@ video, audio {
   font-variant-numeric: tabular-nums;
   min-width: 100px; text-align: center;
 }
-.volume-control { display: flex; align-items: center; gap: 4px; }
-.volume-control input[type="range"] { width: 60px; accent-color: #e94560; }
+
 .shortcuts-bar {
   display: flex; flex-wrap: wrap; gap: 6px;
   align-items: center; font-size: 0.78em; color: #888;
@@ -380,16 +399,6 @@ video, audio {
     font-size: 1em;
     min-height: 44px;
   }
-  .speed-btn {
-    padding: 8px 10px;
-    font-size: 0.85em;
-    min-height: 40px;
-  }
-  .speed-group {
-    margin-left: 0;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
   .speed-slider-wrap {
     margin-left: 0;
     width: 100%;
@@ -397,10 +406,6 @@ video, audio {
   .speed-slider-wrap input[type="range"] {
     flex: 1;
     width: auto;
-  }
-  .volume-control input[type="range"] {
-    width: 80px;
-    height: 44px;
   }
   .progress-container {
     height: 40px;
@@ -513,43 +518,27 @@ video, audio {
 
       <div class="shortcuts-bar">
         <span class="kbd">Space</span> 播放/暂停
-        <span class="kbd">←→</span> 快进退
         <span class="kbd">N</span> 下一个 <span class="kbd">P</span> 上一个
         <span class="kbd">[ ]</span> 倍速
-        <span class="kbd">↑↓</span> 音量 <span class="kbd">M</span> 静音
         <span style="margin-left:auto; color:#e94560; font-size:1.3em; font-weight:bold;" id="currentSpeed">1x</span>
       </div>
 
       <div class="controls">
         <button class="skip-btn" onclick="playPrev()">⏮</button>
-        <button class="skip-btn" onclick="skip(-10)">⏪10</button>
-        <button class="skip-btn" onclick="skip(-5)">⏪5</button>
         <button class="btn" id="playBtn" onclick="togglePlay()">▶</button>
-        <button class="skip-btn" onclick="skip(5)">5⏩</button>
-        <button class="skip-btn" onclick="skip(10)">10⏩</button>
         <button class="skip-btn" onclick="playNext()">⏭</button>
-
-        <div class="volume-control">
-          <span>🔊</span>
-          <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
-        </div>
         <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-      </div>
-
-      <div class="controls">
-        <span style="color:#888; font-size:0.85em;">倍速：</span>
-        <div class="speed-group" id="speedGroup">
-          <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
-          <button class="speed-btn" onclick="setSpeed(0.75)">0.75x</button>
-          <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
-          <button class="speed-btn" onclick="setSpeed(1.25)">1.25x</button>
-          <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
-          <button class="speed-btn" onclick="setSpeed(2)">2x</button>
-          <button class="speed-btn" onclick="setSpeed(3)">3x</button>
-        </div>
         <div class="speed-slider-wrap">
           <input type="range" id="speedSlider" min="0.25" max="4" step="0.05" value="1" oninput="setSpeed(parseFloat(this.value))">
           <span class="speed-slider-val" id="speedSliderVal">1x</span>
+          <div class="speed-ticks">
+            <span>0.5x</span>
+            <span>1x</span>
+            <span>1.5x</span>
+            <span>2x</span>
+            <span>3x</span>
+            <span>4x</span>
+          </div>
         </div>
       </div>
     </div>
@@ -591,8 +580,6 @@ const mediaContainer = document.getElementById('mediaContainer');
 const playBtn = document.getElementById('playBtn');
 const timeDisplay = document.getElementById('timeDisplay');
 const fileNameEl = document.getElementById('fileName');
-const speedGroup = document.getElementById('speedGroup');
-const volumeSlider = document.getElementById('volumeSlider');
 const playlistEl = document.getElementById('playlist');
 const playlistCount = document.getElementById('playlistCount');
 const statsLeft = document.getElementById('statsLeft');
@@ -899,23 +886,14 @@ function togglePlay() {
   media.paused ? media.play() : media.pause();
 }
 
-function skip(seconds) {
-  if (!media) return;
-  media.currentTime = Math.max(0, Math.min(media.duration, media.currentTime + seconds));
-}
-
 function setSpeed(rate) {
   if (!media) return;
   media.playbackRate = rate;
   document.getElementById('currentSpeed').textContent = rate + 'x';
-  speedGroup.querySelectorAll('.speed-btn').forEach(btn => {
-    btn.classList.toggle('active', parseFloat(btn.textContent) === rate);
-  });
   document.getElementById('speedSlider').value = rate;
   document.getElementById('speedSliderVal').textContent = rate + 'x';
 }
 
-function setVolume(v) { if (media) media.volume = v; }
 
 function updateTime() {
   if (!media) return;
@@ -948,11 +926,6 @@ document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   switch(e.key) {
     case ' ': e.preventDefault(); togglePlay(); break;
-    case 'ArrowLeft': skip(e.shiftKey ? -10 : -5); break;
-    case 'ArrowRight': skip(e.shiftKey ? 10 : 5); break;
-    case 'ArrowUp': e.preventDefault(); if(media) { volumeSlider.value = Math.min(1, media.volume + 0.1); setVolume(volumeSlider.value); } break;
-    case 'ArrowDown': e.preventDefault(); if(media) { volumeSlider.value = Math.max(0, media.volume - 0.1); setVolume(volumeSlider.value); } break;
-    case 'm': case 'M': if(media) media.muted = !media.muted; break;
     case '[': if(media) setSpeed(Math.max(0.25, media.playbackRate - 0.25)); break;
     case ']': if(media) setSpeed(Math.min(4, media.playbackRate + 0.25)); break;
     case 'n': case 'N': playNext(); break;
