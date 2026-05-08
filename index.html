@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>本地媒体播放器</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,6 +78,131 @@ body {
   transform: translate(-50%, -50%) scale(1.1);
 }
 #playOverlay svg { width: 36px; height: 36px; fill: white; margin-left: 4px; }
+
+/* 黑胶唱片动画 */
+.vinyl-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  position: relative;
+  background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a15 100%);
+}
+.vinyl-disc {
+  width: min(60vw, 60vh, 360px);
+  height: min(60vw, 60vh, 360px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #111 0%, #111 18%, transparent 18.5%),
+    radial-gradient(circle, transparent 17%, #e94560 17.5%, #e94560 28%, transparent 28.5%),
+    radial-gradient(circle, transparent 28%, #1a1a1a 28.5%),
+    repeating-radial-gradient(circle, #1a1a1a 0px, #222 1px, #1a1a1a 2px);
+  background-size: 100% 100%;
+  box-shadow:
+    0 0 0 3px #333,
+    0 0 40px rgba(0,0,0,0.5),
+    inset 0 0 60px rgba(0,0,0,0.3);
+  animation: vinyl-spin 3s linear infinite;
+  animation-play-state: paused;
+  position: relative;
+}
+.vinyl-disc.spinning {
+  animation-play-state: running;
+}
+.vinyl-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e94560 30%, #c0392b 100%);
+  box-shadow: 0 0 8px rgba(233,69,96,0.6);
+}
+.vinyl-grooves {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle,
+    transparent 0px,
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+.vinyl-title {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #e94560;
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  text-align: center;
+}
+/* 唱臂 */
+.tonearm {
+  position: absolute;
+  top: 8%;
+  right: 15%;
+  width: 4px;
+  height: 40%;
+  background: linear-gradient(to bottom, #888, #555);
+  border-radius: 2px;
+  transform-origin: top center;
+  transform: rotate(-25deg);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 5;
+}
+.tonearm::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #666;
+  border: 2px solid #888;
+}
+.tonearm::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(30deg);
+  width: 3px;
+  height: 18px;
+  background: #999;
+  border-radius: 1px;
+}
+.tonearm.playing {
+  transform: rotate(8deg);
+}
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+/* 移动端唱片尺寸 */
+@media (max-width: 768px) {
+  .vinyl-disc {
+    width: min(70vw, 50vh, 280px);
+    height: min(70vw, 50vh, 280px);
+  }
+  .tonearm {
+    right: 10%;
+    height: 35%;
+  }
+  .vinyl-title { font-size: 0.78em; bottom: -30px; }
+}
 
 /* YouTube 风格进度条 */
 .progress-container {
@@ -191,6 +316,9 @@ video, audio {
   background: rgba(255,255,255,0.03);
   border-radius: 6px;
 }
+@media (max-width: 768px) {
+  .shortcuts-bar { display: none; }
+}
 .kbd {
   background: #0f3460; padding: 2px 6px;
   border-radius: 3px; font-family: monospace;
@@ -215,6 +343,68 @@ video, audio {
   padding: 12px;
   display: flex;
   flex-direction: column;
+}
+@media (max-width: 768px) {
+  body { padding: 4px; }
+  .main-layout {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .player-panel {
+    flex: 1;
+    min-height: 0;
+  }
+  .playlist-panel {
+    width: 100%;
+    max-height: 35vh;
+    flex-shrink: 0;
+  }
+  .controls {
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .btn, .skip-btn {
+    padding: 10px 14px;
+    font-size: 1em;
+    min-height: 44px;
+  }
+  .speed-btn {
+    padding: 8px 10px;
+    font-size: 0.85em;
+    min-height: 40px;
+  }
+  .speed-group {
+    margin-left: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .volume-control input[type="range"] {
+    width: 80px;
+    height: 44px;
+  }
+  .progress-container {
+    height: 40px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+  }
+  #playOverlay {
+    width: 64px; height: 64px;
+  }
+  #playOverlay svg { width: 28px; height: 28px; }
+  .playlist-item {
+    padding: 10px;
+    min-height: 44px;
+  }
+  .playlist-item .remove-btn {
+    opacity: 1;
+    padding: 8px;
+    font-size: 1.2em;
+  }
+  .top-bar .btn {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
 }
 .playlist-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -478,8 +668,28 @@ function playAtIndex(index) {
   media.style.maxHeight = '100%';
   media.style.cursor = 'pointer';
   media.src = item.url;
-  media.addEventListener('click', () => togglePlay());
-  mediaContainer.appendChild(media);
+
+  if (item.isVideo) {
+    media.addEventListener('click', () => togglePlay());
+    mediaContainer.appendChild(media);
+  } else {
+    // 音频：显示黑胶唱片
+    media.style.display = 'none';
+    mediaContainer.appendChild(media);
+    const vinylHTML = `
+      <div class="vinyl-wrapper" id="vinylWrapper">
+        <div class="vinyl-disc" id="vinylDisc">
+          <div class="vinyl-grooves"></div>
+        </div>
+        <div class="tonearm" id="tonearm"></div>
+        <div class="vinyl-title" id="vinylTitle">${item.name}</div>
+      </div>`;
+    mediaContainer.insertAdjacentHTML('beforeend', vinylHTML);
+    document.getElementById('vinylWrapper').addEventListener('click', () => togglePlay());
+    // 初始即为播放状态（media.play() 会在后面调用）
+    document.getElementById('vinylDisc').classList.add('spinning');
+    document.getElementById('tonearm').classList.add('playing');
+  }
 
   // YouTube 风格进度条
   const progressHTML = `
@@ -504,6 +714,25 @@ function playAtIndex(index) {
     const pct = (e.clientX - rect.left) / rect.width;
     media.currentTime = pct * media.duration;
   });
+
+  // 进度条触摸支持
+  let touchSeeking = false;
+  function handleTouch(e) {
+    if (!media || !media.duration) return;
+    const touch = e.touches[0];
+    const rect = progressContainer.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    media.currentTime = pct * media.duration;
+    progressFill.style.width = (pct * 100) + '%';
+  }
+  progressContainer.addEventListener('touchstart', e => {
+    touchSeeking = true;
+    handleTouch(e);
+  }, { passive: true });
+  progressContainer.addEventListener('touchmove', e => {
+    if (touchSeeking) { e.preventDefault(); handleTouch(e); }
+  }, { passive: false });
+  progressContainer.addEventListener('touchend', () => { touchSeeking = false; });
 
   // 进度条悬停提示
   progressContainer.addEventListener('mousemove', e => {
@@ -551,15 +780,27 @@ function playAtIndex(index) {
   media.addEventListener('play', () => {
     playBtn.textContent = '⏸';
     overlay.style.display = 'none';
+    const disc = document.getElementById('vinylDisc');
+    const arm = document.getElementById('tonearm');
+    if (disc) disc.classList.add('spinning');
+    if (arm) arm.classList.add('playing');
   });
   media.addEventListener('pause', () => {
     playBtn.textContent = '▶';
     overlay.style.display = 'flex';
+    const disc = document.getElementById('vinylDisc');
+    const arm = document.getElementById('tonearm');
+    if (disc) disc.classList.remove('spinning');
+    if (arm) arm.classList.remove('playing');
     // 暂停时保存进度
     saveProgress(item.name, media.currentTime);
   });
   media.addEventListener('ended', () => {
     clearProgress(item.name); // 播完清除进度
+    const disc = document.getElementById('vinylDisc');
+    const arm = document.getElementById('tonearm');
+    if (disc) disc.classList.remove('spinning');
+    if (arm) arm.classList.remove('playing');
     // 从列表中移除
     playlist.splice(currentIndex, 1);
     if (playlist.length === 0) {
@@ -575,7 +816,13 @@ function playAtIndex(index) {
   });
 
   renderPlaylist();
-  media.play();
+  media.play().catch(() => {
+    // 自动播放被阻止，停止唱片动画
+    const disc = document.getElementById('vinylDisc');
+    const arm = document.getElementById('tonearm');
+    if (disc) disc.classList.remove('spinning');
+    if (arm) arm.classList.remove('playing');
+  });
 }
 
 // 从播放列表移除
