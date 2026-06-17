@@ -606,6 +606,7 @@ video, audio {
 
       <div class="shortcuts-bar">
         <span class="kbd">Space</span> 播放/暂停
+        <span class="kbd">←</span> <span class="kbd">→</span> 快退/快进
         <span class="kbd">N</span> 下一个 <span class="kbd">P</span> 上一个
         <span class="kbd">[ ]</span> 倍速
         <span style="margin-left:auto; color:#e94560; font-size:1.3em; font-weight:bold;" id="currentSpeed">1x</span>
@@ -740,7 +741,8 @@ function clearProgress(name) {
 
 // 添加文件到播放列表
 function addFiles(files) {
-  for (const file of files) {
+  const sortedFiles = Array.from(files).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
+  for (const file of sortedFiles) {
     const name = file.name;
     playlist.push({
       file: file,
@@ -1197,6 +1199,8 @@ document.addEventListener('keydown', e => {
     case ']': if(media) setSpeed(Math.min(4, media.playbackRate + 0.25)); break;
     case 'n': case 'N': playNext(); break;
     case 'p': case 'P': playPrev(); break;
+    case 'ArrowLeft': if(media) media.currentTime -= 5; break;
+    case 'ArrowRight': if(media) media.currentTime += 5; break;
   }
 });
 
