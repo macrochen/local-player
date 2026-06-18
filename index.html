@@ -836,9 +836,6 @@ function playAtIndex(index) {
       </div>`;
     mediaContainer.insertAdjacentHTML('beforeend', vinylHTML);
     document.getElementById('vinylWrapper').addEventListener('click', () => togglePlay());
-    // 初始即为播放状态（media.play() 会在后面调用）
-    document.getElementById('vinylDisc').classList.add('spinning');
-    document.getElementById('tonearm').classList.add('playing');
   }
 
   // YouTube 风格进度条
@@ -975,11 +972,7 @@ function playAtIndex(index) {
 
   renderPlaylist();
   media.play().catch(() => {
-    // 自动播放被阻止，停止唱片动画
-    const disc = document.getElementById('vinylDisc');
-    const arm = document.getElementById('tonearm');
-    if (disc) disc.classList.remove('spinning');
-    if (arm) arm.classList.remove('playing');
+    // 自动播放被阻止，不做任何视觉上的播放状态更新，因为我们现在依赖 play 事件来更新状态
   });
 }
 
