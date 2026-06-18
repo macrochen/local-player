@@ -1,4 +1,4 @@
-const CACHE_NAME = 'media-player-v5';
+const CACHE_NAME = 'media-player-v6';
 const urlsToCache = [
   './',
   './index.html',
