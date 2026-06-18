@@ -94,9 +94,14 @@ body {
   position: relative;
   background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a15 100%);
 }
-.vinyl-disc {
+.vinyl-container {
+  position: relative;
   width: min(60vw, 60vh, 360px);
   height: min(60vw, 60vh, 360px);
+}
+.vinyl-disc {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background:
     conic-gradient(from 45deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 15%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.08) 65%, rgba(255,255,255,0) 80%),
@@ -163,9 +168,9 @@ body {
 .tonearm {
   position: absolute;
   top: 8%;
-  right: 15%;
+  right: 10%;
   width: 4px;
-  height: 40%;
+  height: 45%;
   background: linear-gradient(to bottom, #888, #555);
   border-radius: 2px;
   transform-origin: top center;
@@ -205,13 +210,13 @@ body {
 }
 /* 移动端唱片尺寸 */
 @media (max-width: 768px) {
-  .vinyl-disc {
+  .vinyl-container {
     width: min(70vw, 50vh, 280px);
     height: min(70vw, 50vh, 280px);
   }
   .tonearm {
-    right: 10%;
-    height: 35%;
+    right: 5%;
+    height: 40%;
   }
   .vinyl-title { font-size: 0.78em; bottom: -30px; }
 }
@@ -838,10 +843,12 @@ function playAtIndex(index) {
     mediaContainer.appendChild(media);
     const vinylHTML = `
       <div class="vinyl-wrapper" id="vinylWrapper">
-        <div class="vinyl-disc" id="vinylDisc">
-          <div class="vinyl-grooves"></div>
+        <div class="vinyl-container">
+          <div class="vinyl-disc" id="vinylDisc">
+            <div class="vinyl-grooves"></div>
+          </div>
+          <div class="tonearm" id="tonearm"></div>
         </div>
-        <div class="tonearm" id="tonearm"></div>
         <div class="vinyl-title" id="vinylTitle">${item.name}</div>
       </div>`;
     mediaContainer.insertAdjacentHTML('beforeend', vinylHTML);
