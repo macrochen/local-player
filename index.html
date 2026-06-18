@@ -674,6 +674,7 @@ video, audio {
       <h3>播放列表 <span id="playlistCount">0</span></h3>
       <div class="playlist-actions">
         <button class="btn btn-sm" onclick="fileInput.click()">＋</button>
+        <button class="btn btn-sm" onclick="sortPlaylist()" style="color:#888;">排序</button>
         <button class="btn btn-sm" onclick="clearPlaylist()" style="color:#888;">清空</button>
       </div>
     </div>
@@ -1004,6 +1005,17 @@ function removeFromPlaylist(index) {
     if (index < currentIndex) currentIndex--;
     renderPlaylist();
   }
+}
+
+// 排序播放列表
+function sortPlaylist() {
+  if (playlist.length <= 1) return;
+  const currentItem = currentIndex >= 0 ? playlist[currentIndex] : null;
+  playlist.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
+  if (currentItem) {
+    currentIndex = playlist.indexOf(currentItem);
+  }
+  renderPlaylist();
 }
 
 // 清空播放列表
