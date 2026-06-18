@@ -799,6 +799,9 @@ function playAtIndex(index) {
   // 保存当前播放的进度
   if (currentIndex >= 0 && media) {
     saveProgress(playlist[currentIndex].name, media.currentTime);
+    media.pause();
+    media.removeAttribute('src');
+    media.load();
   }
 
   currentIndex = index;
@@ -911,7 +914,8 @@ function playAtIndex(index) {
   overlay.onclick = () => media.play();
   mediaContainer.appendChild(overlay);
 
-  media.addEventListener('timeupdate', () => {
+  media.addEventListener('timeupdate', (e) => {
+    if (e.target !== media) return;
     updateTime();
     // 更新进度条
     if (media.duration) {
@@ -922,14 +926,16 @@ function playAtIndex(index) {
       saveProgress(item.name, media.currentTime);
     }
   });
-  media.addEventListener('progress', () => {
+  media.addEventListener('progress', (e) => {
+    if (e.target !== media) return;
     // 更新缓冲进度
     if (media.buffered.length > 0 && media.duration) {
       const buffered = media.buffered.end(media.buffered.length - 1);
       progressBuffered.style.width = (buffered / media.duration * 100) + '%';
     }
   });
-  media.addEventListener('loadedmetadata', () => {
+  media.addEventListener('loadedmetadata', (e) => {
+    if (e.target !== media) return;
     updateTime();
     // 恢复上次播放位置
     if (item.savedTime > 0 && item.savedTime < media.duration - 2) {
@@ -937,7 +943,8 @@ function playAtIndex(index) {
       item.savedTime = 0; // 只恢复一次
     }
   });
-  media.addEventListener('play', () => {
+  media.addEventListener('play', (e) => {
+    if (e.target !== media) return;
     playBtn.textContent = '⏸';
     overlay.style.display = 'none';
     const disc = document.getElementById('vinylDisc');
@@ -945,7 +952,8 @@ function playAtIndex(index) {
     if (disc) disc.classList.add('spinning');
     if (arm) arm.classList.add('playing');
   });
-  media.addEventListener('pause', () => {
+  media.addEventListener('pause', (e) => {
+    if (e.target !== media) return;
     playBtn.textContent = '▶';
     overlay.style.display = 'flex';
     const disc = document.getElementById('vinylDisc');
@@ -955,7 +963,8 @@ function playAtIndex(index) {
     // 暂停时保存进度
     saveProgress(item.name, media.currentTime);
   });
-  media.addEventListener('ended', () => {
+  media.addEventListener('ended', (e) => {
+    if (e.target !== media) return;
     handleMediaEnded(); // 处理定时器"播完停止"模式
     clearProgress(item.name); // 播完清除进度
     const disc = document.getElementById('vinylDisc');
