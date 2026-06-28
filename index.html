@@ -1437,7 +1437,9 @@ async function fetchFolderContents(folderId) {
       const response = await gapi.client.drive.files.list({
         q: `'${folderId}' in parents and (mimeType contains 'audio/' or mimeType contains 'video/') and trashed = false`,
         fields: 'nextPageToken, files(id, name, mimeType, size)',
-        pageToken: pageToken
+        pageToken: pageToken,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true
       });
       const files = response.result.files;
       if (files && files.length > 0) {
@@ -1453,7 +1455,7 @@ async function fetchFolderContents(folderId) {
 
 function addDriveFile(file) {
   const isVideo = file.mimeType.startsWith('video/');
-  const virtualUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&access_token=${gdriveToken}`;
+  const virtualUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&supportsAllDrives=true&access_token=${gdriveToken}`;
   
   playlist.push({
     file: null, // Virtual file
