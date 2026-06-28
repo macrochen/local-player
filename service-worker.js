@@ -1,4 +1,4 @@
-const CACHE_NAME = 'media-player-v8';
+const CACHE_NAME = 'media-player-v9';
 const urlsToCache = [
   './',
   './index.html',
@@ -30,9 +30,8 @@ self.addEventListener('fetch', event => {
     const token = url.searchParams.get('token');
     
     if (fileId && token) {
-      const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+      const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&access_token=${token}`;
       const headers = new Headers(event.request.headers);
-      headers.set('Authorization', `Bearer ${token}`);
       
       const newRequest = new Request(driveUrl, {
         method: event.request.method,
