@@ -1040,6 +1040,21 @@ function playAtIndex(index) {
   
   media.addEventListener('error', (e) => {
     if (e.target !== media) return;
+    
+    // 如果是 Google Drive 视频且第一次出错，尝试使用备用链接 (Cookie 验证模式)
+    if (item.url && item.url.includes('googleapis.com') && !item.fallbackAttempted) {
+      console.warn("API 播放失败，尝试使用 Cookie 备用链接重试...");
+      item.fallbackAttempted = true;
+      const fileIdMatch = item.url.match(/\/files\/([^?]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        const fileId = fileIdMatch[1];
+        const fallbackUrl = `https://drive.google.com/uc?export=download&confirm=t&id=${fileId}`;
+        media.src = fallbackUrl;
+        media.play().catch(err => console.error("备用链接播放也失败了:", err));
+        return;
+      }
+    }
+
     const error = media.error;
     let errorMessage = "未知错误";
     if (error) {
@@ -1051,7 +1066,7 @@ function playAtIndex(index) {
       }
     }
     console.error("Media Error:", errorMessage, error);
-    alert(`无法播放此视频。\n原因: ${errorMessage}\n\n可能是以下情况：\n1. 浏览器不支持该视频格式（如 AVI, MKV, 某些 MOV）。\n2. 视频编码（如 H.265/HEVC）在当前浏览器中不被支持。\n3. Google Drive 的访问令牌过期或跨域重定向失败。\n\n尝试选择一个标准的 MP4 (H.264) 文件进行测试。`);
+    alert(`无法播放此视频。\n原因: ${errorMessage}\n\n可能是以下情况：\n1. 浏览器不支持该视频格式（如 AVI, MKV, 某些 MOV）。\n2. 视频编码（如 H.265/HEVC）在当前浏览器中不被支持。\n3. Google Drive 的访问令牌已过期，或者该文件属于共享云盘且缺少权限。\n\n尝试选择一个普通的 MP4 (H.264) 文件进行测试。`);
   });
 
   media.addEventListener('play', (e) => {
