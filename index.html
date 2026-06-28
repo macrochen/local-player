@@ -1037,6 +1037,23 @@ function playAtIndex(index) {
       item.savedTime = 0; // 只恢复一次
     }
   });
+  
+  media.addEventListener('error', (e) => {
+    if (e.target !== media) return;
+    const error = media.error;
+    let errorMessage = "未知错误";
+    if (error) {
+      switch (error.code) {
+        case 1: errorMessage = "播放被终止 (MEDIA_ERR_ABORTED)"; break;
+        case 2: errorMessage = "网络错误 (MEDIA_ERR_NETWORK)"; break;
+        case 3: errorMessage = "解码错误 (MEDIA_ERR_DECODE)"; break;
+        case 4: errorMessage = "格式不支持 (MEDIA_ERR_SRC_NOT_SUPPORTED)"; break;
+      }
+    }
+    console.error("Media Error:", errorMessage, error);
+    alert(`无法播放此视频。\n原因: ${errorMessage}\n\n可能是以下情况：\n1. 浏览器不支持该视频格式（如 AVI, MKV, 某些 MOV）。\n2. 视频编码（如 H.265/HEVC）在当前浏览器中不被支持。\n3. Google Drive 的访问令牌过期或跨域重定向失败。\n\n尝试选择一个标准的 MP4 (H.264) 文件进行测试。`);
+  });
+
   media.addEventListener('play', (e) => {
     if (e.target !== media) return;
     playBtn.textContent = '⏸';
