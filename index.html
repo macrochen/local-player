@@ -1470,7 +1470,7 @@ async function fetchFolderContents(folderId) {
 
 function addDriveFile(file) {
   const isVideo = file.mimeType.startsWith('video/');
-  const virtualUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&supportsAllDrives=true&access_token=${gdriveToken}`;
+  const virtualUrl = `./google-drive-media/${file.id}?token=${gdriveToken}`;
   
   playlist.push({
     file: null, // Virtual file
