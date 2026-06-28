@@ -1,4 +1,4 @@
-const CACHE_NAME = 'media-player-v9';
+const CACHE_NAME = 'media-player-v10';
 const urlsToCache = [
   './',
   './index.html',
@@ -23,28 +23,7 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // 拦截 Google Drive 媒体请求
-  const match = url.pathname.match(/\/google-drive-media\/([^/]+)$/);
-  if (match) {
-    const fileId = match[1];
-    const token = url.searchParams.get('token');
-    
-    if (fileId && token) {
-      const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&access_token=${token}`;
-      const headers = new Headers(event.request.headers);
-      
-      const newRequest = new Request(driveUrl, {
-        method: event.request.method,
-        headers: headers,
-        mode: 'cors',
-        credentials: 'omit',
-        redirect: 'follow'
-      });
-      
-      event.respondWith(fetch(newRequest));
-      return;
-    }
-  }
+  // Service Worker 不再拦截 Google Drive 请求，直接由浏览器原生处理
 
   event.respondWith(
     caches.match(event.request)
