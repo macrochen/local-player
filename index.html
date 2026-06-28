@@ -1469,6 +1469,11 @@ async function fetchFolderContents(folderId) {
 }
 
 function addDriveFile(file) {
+  if (!navigator.serviceWorker.controller) {
+    alert("系统检测到网络加速器 (Service Worker) 未激活！\n\n这通常是因为您刚刚执行了“强制刷新”。请您现在按一次【普通的刷新 (F5) 或点击浏览器刷新按钮】，然后再选择文件播放。");
+    return;
+  }
+  
   const isVideo = file.mimeType.startsWith('video/');
   const virtualUrl = `./google-drive-media/${file.id}?token=${gdriveToken}`;
   
