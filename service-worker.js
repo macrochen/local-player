@@ -1,4 +1,4 @@
-const CACHE_NAME = 'media-player-v6';
+const CACHE_NAME = 'media-player-v7';
 const urlsToCache = [
   './',
   './index.html',
@@ -23,8 +23,9 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
   // 拦截 Google Drive 媒体请求
-  if (url.pathname.startsWith('/google-drive-media/')) {
-    const fileId = url.pathname.split('/')[2];
+  const match = url.pathname.match(/\/google-drive-media\/([^/]+)$/);
+  if (match) {
+    const fileId = match[1];
     const token = url.searchParams.get('token');
     
     if (fileId && token) {
