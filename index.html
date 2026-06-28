@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="媒体播放器">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
+<script async defer src="https://apis.google.com/js/api.js"></script>
+<script async defer src="https://accounts.google.com/gsi/client"></script>
 <title>本地媒体播放器</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -599,6 +601,62 @@ video, audio {
   font-size: 0.75em; color: #666;
   display: flex; justify-content: space-between;
 }
+
+/* Settings Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.modal-content h3 { margin-bottom: 16px; color: #eee; font-weight: normal; }
+.modal-content .form-group { margin-bottom: 16px; }
+.modal-content label { display: block; margin-bottom: 6px; font-size: 0.85em; color: #aaa; }
+.modal-content input {
+  width: 100%;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #eee;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+.modal-content input:focus { outline: none; border-color: #e94560; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #aaa; }
+.btn-outline:hover { background: rgba(255,255,255,0.05); color: #eee; }
+
+/* Drive Button */
+.drive-btn {
+  margin-top: 16px;
+  background: #fff;
+  color: #444;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.drive-btn:hover { background: #f0f0f0; transform: translateY(-1px); }
+.drive-btn svg { width: 20px; height: 20px; }
 </style>
 </head>
 <body>
@@ -610,6 +668,10 @@ video, audio {
       <div class="icon">📂</div>
       <p>拖拽视频或音频文件到这里</p>
       <p style="margin-top:8px; font-size:0.85em; color:#666">或点击选择文件（支持多选）</p>
+      <button class="drive-btn" onclick="event.stopPropagation(); loadGoogleDrive()">
+        <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg"><path d="M6.6 66.85l38.8-67.3h27.75L34.4 66.85z" fill="#0066da"/><path d="M46.5 66.85h27.7l13.1-22.7H59.6z" fill="#00ac47"/><path d="M46.5 66.85L59.6 44.1 20.8 44.1 7.7 66.85z" fill="#ea4335"/><path d="M6.6 66.85l13.1-22.7L59.6 44.1 46.5 66.85z" fill="#00832d"/><path d="M46.5 66.85l13.1-22.7h27.75L48.55 78z" fill="#2684fc"/><path d="M34.4 66.85l12.1 21.1 13.1-22.7z" fill="#ffba00"/></svg>
+        从 Google Drive 导入
+      </button>
     </div>
     <input type="file" id="fileInput" accept="video/*,audio/*,.mp3,.wav,.ogg,.flac,.aac,.wma,.m4a,.opus,.ape" multiple style="display:none">
 
@@ -685,9 +747,11 @@ video, audio {
     <div class="playlist-header">
       <h3>播放列表 <span id="playlistCount">0</span></h3>
       <div class="playlist-actions">
-        <button class="btn btn-sm" onclick="fileInput.click()">＋</button>
-        <button class="btn btn-sm" onclick="sortPlaylist()" style="color:#888;">排序</button>
-        <button class="btn btn-sm" onclick="clearPlaylist()" style="color:#888;">清空</button>
+        <button class="btn btn-sm" onclick="fileInput.click()" title="本地文件">＋</button>
+        <button class="btn btn-sm" onclick="loadGoogleDrive()" style="background:#fff; color:#444;" title="Google Drive">Drive</button>
+        <button class="btn btn-sm" onclick="sortPlaylist()" style="color:#888;" title="排序">排序</button>
+        <button class="btn btn-sm" onclick="clearPlaylist()" style="color:#888;" title="清空">清空</button>
+        <button class="btn btn-sm" onclick="openSettingsModal()" style="color:#888;" title="设置">⚙️</button>
       </div>
     </div>
     <div class="playlist" id="playlist">
@@ -696,6 +760,28 @@ video, audio {
     <div class="playlist-stats">
       <span id="statsLeft">-</span>
       <span id="statsTotal"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-content">
+    <h3>设置 Google Drive</h3>
+    <div class="form-group">
+      <label for="gdriveClientId">Client ID (OAuth 2.0 Client ID)</label>
+      <input type="text" id="gdriveClientId" placeholder="xxxx.apps.googleusercontent.com">
+    </div>
+    <div class="form-group">
+      <label for="gdriveApiKey">API Key</label>
+      <input type="text" id="gdriveApiKey" placeholder="AIzaSy...">
+    </div>
+    <p style="font-size: 0.75em; color: #888; margin-top: 8px;">
+      请在 Google Cloud Console 创建项目并启用 Google Drive API 与 Google Picker API。添加授权的 JavaScript 来源。
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSettingsModal()">取消</button>
+      <button class="btn" onclick="saveSettings()">保存</button>
     </div>
   </div>
 </div>
@@ -1241,6 +1327,129 @@ window.addEventListener('beforeunload', () => {
 
 // 页面加载时恢复定时器设置
 restoreSleepTimer();
+
+// Google Drive Integration
+let gdriveToken = null;
+let tokenClient = null;
+
+function openSettingsModal() {
+  document.getElementById('gdriveClientId').value = localStorage.getItem('gdriveClientId') || '';
+  document.getElementById('gdriveApiKey').value = localStorage.getItem('gdriveApiKey') || '';
+  document.getElementById('settingsModal').classList.add('show');
+}
+function closeSettingsModal() {
+  document.getElementById('settingsModal').classList.remove('show');
+}
+function saveSettings() {
+  localStorage.setItem('gdriveClientId', document.getElementById('gdriveClientId').value.trim());
+  localStorage.setItem('gdriveApiKey', document.getElementById('gdriveApiKey').value.trim());
+  closeSettingsModal();
+}
+
+function loadGoogleDrive() {
+  const clientId = localStorage.getItem('gdriveClientId');
+  const apiKey = localStorage.getItem('gdriveApiKey');
+  if (!clientId || !apiKey) {
+    alert('请先在设置中配置 Google Drive 的 Client ID 和 API Key！');
+    openSettingsModal();
+    return;
+  }
+  
+  if (!tokenClient) {
+    gapi.load('client:picker', () => {
+      gapi.client.init({
+        apiKey: apiKey,
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+      }).then(() => {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/drive.readonly',
+          callback: (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              gdriveToken = tokenResponse.access_token;
+              showPicker();
+            }
+          }
+        });
+        tokenClient.requestAccessToken();
+      }).catch(err => {
+        console.error('Google API Init Error:', err);
+        alert('初始化 Google API 失败，请检查配置是否正确。');
+      });
+    });
+  } else {
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
+}
+
+function showPicker() {
+  const apiKey = localStorage.getItem('gdriveApiKey');
+  
+  const fileView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+    .setMimeTypes('video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo,audio/mpeg,audio/wav,audio/ogg,audio/flac,audio/aac,audio/x-m4a,application/vnd.google-apps.folder')
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(true);
+    
+  const picker = new google.picker.PickerBuilder()
+    .addView(fileView)
+    .setOAuthToken(gdriveToken)
+    .setDeveloperKey(apiKey)
+    .setCallback(pickerCallback)
+    .build();
+  picker.setVisible(true);
+}
+
+async function pickerCallback(data) {
+  if (data.action === google.picker.Action.PICKED) {
+    const docs = data.docs;
+    for (const doc of docs) {
+      if (doc.mimeType === 'application/vnd.google-apps.folder') {
+        await fetchFolderContents(doc.id);
+      } else {
+        addDriveFile(doc);
+      }
+    }
+  }
+}
+
+async function fetchFolderContents(folderId) {
+  let pageToken = null;
+  do {
+    try {
+      const response = await gapi.client.drive.files.list({
+        q: `'${folderId}' in parents and (mimeType contains 'audio/' or mimeType contains 'video/') and trashed = false`,
+        fields: 'nextPageToken, files(id, name, mimeType, size)',
+        pageToken: pageToken
+      });
+      const files = response.result.files;
+      if (files && files.length > 0) {
+        files.forEach(file => addDriveFile(file));
+      }
+      pageToken = response.result.nextPageToken;
+    } catch (err) {
+      console.error('Error fetching folder:', err);
+      break;
+    }
+  } while (pageToken);
+}
+
+function addDriveFile(file) {
+  const isVideo = file.mimeType.startsWith('video/');
+  const virtualUrl = `/google-drive-media/${file.id}?token=${gdriveToken}`;
+  
+  playlist.push({
+    file: null, // Virtual file
+    name: file.name,
+    url: virtualUrl,
+    isVideo: isVideo,
+    savedTime: getSavedProgress(file.name)
+  });
+  
+  renderPlaylist();
+  if (currentIndex === -1 && playlist.length > 0) {
+    playAtIndex(0);
+  }
+}
 
 // 注册 Service Worker
 if ('serviceWorker' in navigator) {

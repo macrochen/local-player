@@ -20,6 +20,31 @@ self.addEventListener('install', event => {
 
 // 拦截网络请求
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // 拦截 Google Drive 媒体请求
+  if (url.pathname.startsWith('/google-drive-media/')) {
+    const fileId = url.pathname.split('/')[2];
+    const token = url.searchParams.get('token');
+    
+    if (fileId && token) {
+      const driveUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+      const headers = new Headers(event.request.headers);
+      headers.set('Authorization', `Bearer ${token}`);
+      
+      const newRequest = new Request(driveUrl, {
+        method: event.request.method,
+        headers: headers,
+        mode: 'cors',
+        credentials: 'omit',
+        redirect: 'follow'
+      });
+      
+      event.respondWith(fetch(newRequest));
+      return;
+    }
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
