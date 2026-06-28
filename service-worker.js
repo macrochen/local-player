@@ -1,4 +1,4 @@
-const CACHE_NAME = 'media-player-v7';
+const CACHE_NAME = 'media-player-v8';
 const urlsToCache = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ self.addEventListener('install', event => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting()) // 强制立刻激活新的 Service Worker
   );
 });
 
@@ -89,7 +90,7 @@ self.addEventListener('activate', event => {
             return caches.delete(cacheName);
           }
         })
-      );
+      ).then(() => self.clients.claim()); // 强制立刻接管所有打开的页面
     })
   );
 });
